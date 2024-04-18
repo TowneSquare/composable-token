@@ -1,5 +1,5 @@
 #[test_only]
-module townespace::composables_test {
+module composable_token::composables_test {
 
     use aptos_framework::account;
     use aptos_framework::object;
@@ -9,8 +9,8 @@ module townespace::composables_test {
     use std::signer;
     use std::string;
 
-    use townespace::composables::{Self, Collection, Composable, Trait};
-    use townespace::test_utils;
+    use composable_token::composables::{Self, Collection, Composable, Trait};
+    use composable_token::test_utils;
 
     const COLLECTION_1_NAME: vector<u8> = b"Collection 1";
     const COLLECTION_2_NAME: vector<u8> = b"Collection 2";

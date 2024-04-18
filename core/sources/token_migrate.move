@@ -22,7 +22,7 @@
         - first proposed way is owner specific. Make a creator specific way.
 */
 
-module townespace::token_migrate {
+module composable_token::token_migrate {
 
     use aptos_framework::event;
     use aptos_framework::object;
@@ -34,8 +34,8 @@ module townespace::token_migrate {
     use std::signer;
     use std::string::{Self, String};
 
-    // use townespace::composables;
-    use townespace::resource_manager;
+    // use composable_token::composables;
+    use composable_token::resource_manager;
 
     #[event]
     struct TokenMigratedFromV1toV2 has drop, store {
@@ -44,8 +44,8 @@ module townespace::token_migrate {
     }
 
     public entry fun init(signer_ref: &signer, uri: String) {
-        // assert signer is townespace
-        assert!(signer::address_of(signer_ref) == @townespace, 1);
+        // assert signer is composable_token
+        assert!(signer::address_of(signer_ref) == @composable_token, 1);
         // create a collection with unlimited supply
         collection::create_unlimited_collection(
             &resource_manager::get_signer(),
@@ -207,7 +207,7 @@ module townespace::token_migrate {
     const BURNABLE_BY_CREATOR: vector<u8> = b"TOKEN_BURNABLE_BY_CREATOR";
     const BURNABLE_BY_OWNER: vector<u8> = b"TOKEN_BURNABLE_BY_OWNER";
 
-    #[test(std = @0x1, ts = @townespace, creator = @0x456, alice = @0x123)]
+    #[test(std = @0x1, ts = @composable_token, creator = @0x456, alice = @0x123)]
     // test migration of a token v1 to v2
     fun test_migration(
         std: &signer,

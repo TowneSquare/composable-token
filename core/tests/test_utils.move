@@ -6,7 +6,7 @@
 */
 
 #[test_only]
-module townespace::test_utils {
+module composable_token::test_utils {
 
     use aptos_framework::account;
     use aptos_framework::aptos_coin::{Self, AptosCoin};
@@ -21,7 +21,7 @@ module townespace::test_utils {
     use std::string::{Self, String};
     use std::type_info;
     use std::vector;
-    use townespace::composables::{Self, Collection, Composable, Trait, Named, Indexed};
+    use composable_token::composables::{Self, Collection, Composable, Trait, Named, Indexed};
     use std::features;
 
     // collection 

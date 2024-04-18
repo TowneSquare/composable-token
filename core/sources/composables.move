@@ -20,7 +20,7 @@
         - some functions can be generic.
 */
 
-module townespace::composables {
+module composable_token::composables {
     
     use aptos_framework::event;
     use aptos_framework::object::{Self, Object};
