@@ -4,23 +4,23 @@ version = "0.2.0"
 authors = ["lay (Aladeen)"]
 
 [addresses]
-composable_token = "0x04d8dd898c13ab06a4897d2fdedb478cf7ac4d3e530d1daa5741c9b9d9ea15ee"
+composable_token = "0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a"
 
 [dev-addresses]
 
 [dependencies.AptosFramework]
 git = "https://github.com/aptos-labs/aptos-core.git"
-rev = "mainnet"
+rev = "main"
 subdir = "aptos-move/framework/aptos-framework"
 
 [dependencies.AptosTokenObjects]
 git = "https://github.com/aptos-labs/aptos-core.git"
-rev = "mainnet"
+rev = "main"
 subdir = "aptos-move/framework/aptos-token-objects"
 
 [dependencies.AptosToken]
 git = "https://github.com/aptos-labs/aptos-core.git"
-rev = "mainnet"
+rev = "main"
 subdir = "aptos-move/framework/aptos-token"
 
 [dev-dependencies]
