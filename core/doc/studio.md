@@ -1,164 +1,390 @@
 
-<a id="0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_studio"></a>
+<a id="0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio"></a>
 
-# Module `0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62::studio`
-
-
-
--  [Function `create_collection`](#0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_studio_create_collection)
--  [Function `create_composable_token`](#0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_studio_create_composable_token)
--  [Function `create_trait_token`](#0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_studio_create_trait_token)
--  [Function `burn_composable_token`](#0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_studio_burn_composable_token)
--  [Function `burn_trait_token`](#0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_studio_burn_trait_token)
--  [Function `equip_trait`](#0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_studio_equip_trait)
--  [Function `unequip_trait`](#0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_studio_unequip_trait)
--  [Function `decompose_entire_token`](#0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_studio_decompose_entire_token)
--  [Function `transfer_digital_asset`](#0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_studio_transfer_digital_asset)
--  [Function `transfer_fungible_asset`](#0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_studio_transfer_fungible_asset)
--  [Function `set_token_name`](#0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_studio_set_token_name)
+# Module `0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a::studio`
 
 
-<pre><code><b>use</b> <a href="">0x1::object</a>;
+
+-  [Struct `CollectionCreatedEvent`](#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_CollectionCreatedEvent)
+-  [Struct `TokenCreatedEvent`](#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_TokenCreatedEvent)
+-  [Function `create_collection_with_fixed_supply_and_royalty`](#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_collection_with_fixed_supply_and_royalty)
+-  [Function `create_collection_with_fixed_supply_and_no_royalty`](#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_collection_with_fixed_supply_and_no_royalty)
+-  [Function `create_collection_with_unlimited_supply_and_royalty`](#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_collection_with_unlimited_supply_and_royalty)
+-  [Function `create_collection_with_unlimited_supply_and_no_royalty`](#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_collection_with_unlimited_supply_and_no_royalty)
+-  [Function `create_named_composable_token_with_no_royalty`](#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_named_composable_token_with_no_royalty)
+-  [Function `create_named_composable_token_with_royalty`](#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_named_composable_token_with_royalty)
+-  [Function `create_indexed_composable_token_with_royalty`](#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_indexed_composable_token_with_royalty)
+-  [Function `create_indexed_composable_token_with_no_royalty`](#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_indexed_composable_token_with_no_royalty)
+-  [Function `create_named_trait_token_with_no_royalty`](#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_named_trait_token_with_no_royalty)
+-  [Function `create_named_trait_token_with_royalty`](#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_named_trait_token_with_royalty)
+-  [Function `create_indexed_trait_token_with_royalty`](#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_indexed_trait_token_with_royalty)
+-  [Function `create_indexed_trait_token_with_no_royalty`](#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_indexed_trait_token_with_no_royalty)
+-  [Function `burn_token`](#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_burn_token)
+-  [Function `freeze_transfer`](#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_freeze_transfer)
+-  [Function `unfreeze_transfer`](#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_unfreeze_transfer)
+-  [Function `equip_trait`](#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_equip_trait)
+-  [Function `equip_fungible_asset`](#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_equip_fungible_asset)
+-  [Function `unequip_trait`](#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_unequip_trait)
+-  [Function `unequip_fungible_asset`](#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_unequip_fungible_asset)
+-  [Function `decompose_entire_composable_token`](#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_decompose_entire_composable_token)
+-  [Function `transfer_digital_asset`](#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_transfer_digital_asset)
+-  [Function `transfer_fungible_asset`](#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_transfer_fungible_asset)
+-  [Function `set_token_name`](#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_set_token_name)
+-  [Function `set_token_description`](#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_set_token_description)
+-  [Function `set_trait_token_uri`](#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_set_trait_token_uri)
+-  [Function `add_property_to_token`](#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_add_property_to_token)
+-  [Function `add_typed_property_to_token`](#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_add_typed_property_to_token)
+-  [Function `update_property_from_token`](#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_update_property_from_token)
+-  [Function `remove_property_from_token`](#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_remove_property_from_token)
+
+
+<pre><code><b>use</b> <a href="">0x1::event</a>;
+<b>use</b> <a href="">0x1::object</a>;
 <b>use</b> <a href="">0x1::option</a>;
-<b>use</b> <a href="">0x1::signer</a>;
 <b>use</b> <a href="">0x1::string</a>;
-<b>use</b> <a href="core.md#0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_core">0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62::core</a>;
-<b>use</b> <a href="events.md#0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_events">0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62::events</a>;
+<b>use</b> <a href="">0x4::collection</a>;
+<b>use</b> <a href="composable_token.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_composable_token">0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a::composable_token</a>;
 </code></pre>
 
 
 
-<a id="0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_studio_create_collection"></a>
+<a id="0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_CollectionCreatedEvent"></a>
 
-## Function `create_collection`
-
----------------
-Entry Functions
----------------
-Create a new collection
+## Struct `CollectionCreatedEvent`
 
 
-<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_studio_create_collection">create_collection</a>&lt;T: key&gt;(creator_signer: &<a href="">signer</a>, description: <a href="_String">string::String</a>, max_supply: <a href="_Option">option::Option</a>&lt;u64&gt;, name: <a href="_String">string::String</a>, symbol: <a href="_String">string::String</a>, uri: <a href="_String">string::String</a>, royalty_numerator: u64, royalty_denominator: u64, is_burnable: bool, is_mutable: bool)
+
+<pre><code>#[<a href="">event</a>]
+<b>struct</b> <a href="studio.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_CollectionCreatedEvent">CollectionCreatedEvent</a> <b>has</b> drop, store
 </code></pre>
 
 
 
-<a id="0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_studio_create_composable_token"></a>
+<a id="0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_TokenCreatedEvent"></a>
 
-## Function `create_composable_token`
-
-create a composable token
+## Struct `TokenCreatedEvent`
 
 
-<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_studio_create_composable_token">create_composable_token</a>(creator_signer: &<a href="">signer</a>, collection_name: <a href="_String">string::String</a>, description: <a href="_String">string::String</a>, uri: <a href="_String">string::String</a>, base_mint_price: u64, traits: <a href="">vector</a>&lt;<a href="_Object">object::Object</a>&lt;<a href="core.md#0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_core_Trait">core::Trait</a>&gt;&gt;, royalty_numerator: u64, royalty_denominator: u64)
+
+<pre><code>#[<a href="">event</a>]
+<b>struct</b> <a href="studio.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_TokenCreatedEvent">TokenCreatedEvent</a>&lt;T&gt; <b>has</b> drop, store
 </code></pre>
 
 
 
-<a id="0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_studio_create_trait_token"></a>
+<a id="0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_collection_with_fixed_supply_and_royalty"></a>
 
-## Function `create_trait_token`
+## Function `create_collection_with_fixed_supply_and_royalty`
 
 
 
-<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_studio_create_trait_token">create_trait_token</a>(creator_signer: &<a href="">signer</a>, collection_name: <a href="_String">string::String</a>, description: <a href="_String">string::String</a>, type: <a href="_String">string::String</a>, uri: <a href="_String">string::String</a>, base_mint_price: u64, royalty_numerator: u64, royalty_denominator: u64)
+<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_collection_with_fixed_supply_and_royalty">create_collection_with_fixed_supply_and_royalty</a>(signer_ref: &<a href="">signer</a>, description: <a href="_String">string::String</a>, max_supply: u64, name: <a href="_String">string::String</a>, symbol: <a href="_String">string::String</a>, uri: <a href="_String">string::String</a>, mutable_description: bool, mutable_royalty: bool, mutable_uri: bool, mutable_token_description: bool, mutable_token_name: bool, mutable_token_properties: bool, mutable_token_uri: bool, tokens_burnable_by_creator: bool, tokens_freezable_by_creator: bool, royalty_numerator: u64, royalty_denominator: u64)
 </code></pre>
 
 
 
-<a id="0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_studio_burn_composable_token"></a>
+<a id="0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_collection_with_fixed_supply_and_no_royalty"></a>
 
-## Function `burn_composable_token`
-
-Burn token
+## Function `create_collection_with_fixed_supply_and_no_royalty`
 
 
-<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_studio_burn_composable_token">burn_composable_token</a>(signer_ref: &<a href="">signer</a>, token_object: <a href="_Object">object::Object</a>&lt;<a href="core.md#0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_core_Composable">core::Composable</a>&gt;)
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_collection_with_fixed_supply_and_no_royalty">create_collection_with_fixed_supply_and_no_royalty</a>(signer_ref: &<a href="">signer</a>, description: <a href="_String">string::String</a>, max_supply: u64, name: <a href="_String">string::String</a>, symbol: <a href="_String">string::String</a>, uri: <a href="_String">string::String</a>, mutable_description: bool, mutable_royalty: bool, mutable_uri: bool, mutable_token_description: bool, mutable_token_name: bool, mutable_token_properties: bool, tokens_burnable_by_creator: bool, tokens_freezable_by_creator: bool)
 </code></pre>
 
 
 
-<a id="0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_studio_burn_trait_token"></a>
+<a id="0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_collection_with_unlimited_supply_and_royalty"></a>
 
-## Function `burn_trait_token`
+## Function `create_collection_with_unlimited_supply_and_royalty`
 
 
 
-<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_studio_burn_trait_token">burn_trait_token</a>(signer_ref: &<a href="">signer</a>, token_object: <a href="_Object">object::Object</a>&lt;<a href="core.md#0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_core_Trait">core::Trait</a>&gt;)
+<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_collection_with_unlimited_supply_and_royalty">create_collection_with_unlimited_supply_and_royalty</a>(signer_ref: &<a href="">signer</a>, description: <a href="_String">string::String</a>, name: <a href="_String">string::String</a>, symbol: <a href="_String">string::String</a>, uri: <a href="_String">string::String</a>, mutable_description: bool, mutable_royalty: bool, mutable_uri: bool, mutable_token_description: bool, mutable_token_name: bool, mutable_token_properties: bool, tokens_burnable_by_creator: bool, tokens_freezable_by_creator: bool, royalty_numerator: u64, royalty_denominator: u64)
 </code></pre>
 
 
 
-<a id="0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_studio_equip_trait"></a>
+<a id="0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_collection_with_unlimited_supply_and_no_royalty"></a>
+
+## Function `create_collection_with_unlimited_supply_and_no_royalty`
+
+
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_collection_with_unlimited_supply_and_no_royalty">create_collection_with_unlimited_supply_and_no_royalty</a>(signer_ref: &<a href="">signer</a>, description: <a href="_String">string::String</a>, name: <a href="_String">string::String</a>, symbol: <a href="_String">string::String</a>, uri: <a href="_String">string::String</a>, mutable_description: bool, mutable_royalty: bool, mutable_uri: bool, mutable_token_description: bool, mutable_token_name: bool, mutable_token_properties: bool, tokens_burnable_by_creator: bool, tokens_freezable_by_creator: bool)
+</code></pre>
+
+
+
+<a id="0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_named_composable_token_with_no_royalty"></a>
+
+## Function `create_named_composable_token_with_no_royalty`
+
+
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_named_composable_token_with_no_royalty">create_named_composable_token_with_no_royalty</a>(signer_ref: &<a href="">signer</a>, <a href="">collection</a>: <a href="_String">string::String</a>, description: <a href="_String">string::String</a>, name: <a href="_String">string::String</a>, uri: <a href="_String">string::String</a>, property_keys: <a href="">vector</a>&lt;<a href="_String">string::String</a>&gt;, property_types: <a href="">vector</a>&lt;<a href="_String">string::String</a>&gt;, property_values: <a href="">vector</a>&lt;<a href="">vector</a>&lt;u8&gt;&gt;)
+</code></pre>
+
+
+
+<a id="0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_named_composable_token_with_royalty"></a>
+
+## Function `create_named_composable_token_with_royalty`
+
+
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_named_composable_token_with_royalty">create_named_composable_token_with_royalty</a>(signer_ref: &<a href="">signer</a>, <a href="">collection</a>: <a href="_String">string::String</a>, description: <a href="_String">string::String</a>, name: <a href="_String">string::String</a>, uri: <a href="_String">string::String</a>, royalty_numerator: u64, royalty_denominator: u64, property_keys: <a href="">vector</a>&lt;<a href="_String">string::String</a>&gt;, property_types: <a href="">vector</a>&lt;<a href="_String">string::String</a>&gt;, property_values: <a href="">vector</a>&lt;<a href="">vector</a>&lt;u8&gt;&gt;)
+</code></pre>
+
+
+
+<a id="0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_indexed_composable_token_with_royalty"></a>
+
+## Function `create_indexed_composable_token_with_royalty`
+
+
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_indexed_composable_token_with_royalty">create_indexed_composable_token_with_royalty</a>(signer_ref: &<a href="">signer</a>, <a href="">collection</a>: <a href="_String">string::String</a>, description: <a href="_String">string::String</a>, uri: <a href="_String">string::String</a>, royalty_numerator: u64, royalty_denominator: u64, property_keys: <a href="">vector</a>&lt;<a href="_String">string::String</a>&gt;, property_types: <a href="">vector</a>&lt;<a href="_String">string::String</a>&gt;, property_values: <a href="">vector</a>&lt;<a href="">vector</a>&lt;u8&gt;&gt;)
+</code></pre>
+
+
+
+<a id="0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_indexed_composable_token_with_no_royalty"></a>
+
+## Function `create_indexed_composable_token_with_no_royalty`
+
+
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_indexed_composable_token_with_no_royalty">create_indexed_composable_token_with_no_royalty</a>(signer_ref: &<a href="">signer</a>, <a href="">collection</a>: <a href="_String">string::String</a>, description: <a href="_String">string::String</a>, uri: <a href="_String">string::String</a>, property_keys: <a href="">vector</a>&lt;<a href="_String">string::String</a>&gt;, property_types: <a href="">vector</a>&lt;<a href="_String">string::String</a>&gt;, property_values: <a href="">vector</a>&lt;<a href="">vector</a>&lt;u8&gt;&gt;)
+</code></pre>
+
+
+
+<a id="0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_named_trait_token_with_no_royalty"></a>
+
+## Function `create_named_trait_token_with_no_royalty`
+
+
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_named_trait_token_with_no_royalty">create_named_trait_token_with_no_royalty</a>(signer_ref: &<a href="">signer</a>, <a href="">collection</a>: <a href="_String">string::String</a>, description: <a href="_String">string::String</a>, name: <a href="_String">string::String</a>, uri: <a href="_String">string::String</a>, property_keys: <a href="">vector</a>&lt;<a href="_String">string::String</a>&gt;, property_types: <a href="">vector</a>&lt;<a href="_String">string::String</a>&gt;, property_values: <a href="">vector</a>&lt;<a href="">vector</a>&lt;u8&gt;&gt;)
+</code></pre>
+
+
+
+<a id="0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_named_trait_token_with_royalty"></a>
+
+## Function `create_named_trait_token_with_royalty`
+
+
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_named_trait_token_with_royalty">create_named_trait_token_with_royalty</a>(signer_ref: &<a href="">signer</a>, <a href="">collection</a>: <a href="_String">string::String</a>, description: <a href="_String">string::String</a>, name: <a href="_String">string::String</a>, uri: <a href="_String">string::String</a>, royalty_numerator: u64, royalty_denominator: u64, property_keys: <a href="">vector</a>&lt;<a href="_String">string::String</a>&gt;, property_types: <a href="">vector</a>&lt;<a href="_String">string::String</a>&gt;, property_values: <a href="">vector</a>&lt;<a href="">vector</a>&lt;u8&gt;&gt;)
+</code></pre>
+
+
+
+<a id="0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_indexed_trait_token_with_royalty"></a>
+
+## Function `create_indexed_trait_token_with_royalty`
+
+
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_indexed_trait_token_with_royalty">create_indexed_trait_token_with_royalty</a>(signer_ref: &<a href="">signer</a>, <a href="">collection</a>: <a href="_String">string::String</a>, description: <a href="_String">string::String</a>, uri: <a href="_String">string::String</a>, royalty_numerator: u64, royalty_denominator: u64, property_keys: <a href="">vector</a>&lt;<a href="_String">string::String</a>&gt;, property_types: <a href="">vector</a>&lt;<a href="_String">string::String</a>&gt;, property_values: <a href="">vector</a>&lt;<a href="">vector</a>&lt;u8&gt;&gt;)
+</code></pre>
+
+
+
+<a id="0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_indexed_trait_token_with_no_royalty"></a>
+
+## Function `create_indexed_trait_token_with_no_royalty`
+
+
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_create_indexed_trait_token_with_no_royalty">create_indexed_trait_token_with_no_royalty</a>(signer_ref: &<a href="">signer</a>, <a href="">collection</a>: <a href="_String">string::String</a>, description: <a href="_String">string::String</a>, uri: <a href="_String">string::String</a>, property_keys: <a href="">vector</a>&lt;<a href="_String">string::String</a>&gt;, property_types: <a href="">vector</a>&lt;<a href="_String">string::String</a>&gt;, property_values: <a href="">vector</a>&lt;<a href="">vector</a>&lt;u8&gt;&gt;)
+</code></pre>
+
+
+
+<a id="0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_burn_token"></a>
+
+## Function `burn_token`
+
+
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_burn_token">burn_token</a>&lt;T: key&gt;(signer_ref: &<a href="">signer</a>, token_obj: <a href="_Object">object::Object</a>&lt;T&gt;)
+</code></pre>
+
+
+
+<a id="0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_freeze_transfer"></a>
+
+## Function `freeze_transfer`
+
+
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_freeze_transfer">freeze_transfer</a>&lt;T: key&gt;(signer_ref: &<a href="">signer</a>, token_obj: <a href="_Object">object::Object</a>&lt;T&gt;)
+</code></pre>
+
+
+
+<a id="0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_unfreeze_transfer"></a>
+
+## Function `unfreeze_transfer`
+
+
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_unfreeze_transfer">unfreeze_transfer</a>&lt;T: key&gt;(signer_ref: &<a href="">signer</a>, token_obj: <a href="_Object">object::Object</a>&lt;T&gt;)
+</code></pre>
+
+
+
+<a id="0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_equip_trait"></a>
 
 ## Function `equip_trait`
 
-Compose one object
 
 
-<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_studio_equip_trait">equip_trait</a>(owner_signer: &<a href="">signer</a>, composable_object: <a href="_Object">object::Object</a>&lt;<a href="core.md#0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_core_Composable">core::Composable</a>&gt;, trait_object: <a href="_Object">object::Object</a>&lt;<a href="core.md#0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_core_Trait">core::Trait</a>&gt;, new_uri: <a href="_String">string::String</a>)
+<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_equip_trait">equip_trait</a>(owner: &<a href="">signer</a>, composable_obj: <a href="_Object">object::Object</a>&lt;<a href="composable_token.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_composable_token_Composable">composable_token::Composable</a>&gt;, trait_obj: <a href="_Object">object::Object</a>&lt;<a href="composable_token.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_composable_token_Trait">composable_token::Trait</a>&gt;, new_uri: <a href="_String">string::String</a>)
 </code></pre>
 
 
 
-<a id="0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_studio_unequip_trait"></a>
+<a id="0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_equip_fungible_asset"></a>
+
+## Function `equip_fungible_asset`
+
+
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_equip_fungible_asset">equip_fungible_asset</a>&lt;FA: key, TokenType: key&gt;(signer_ref: &<a href="">signer</a>, fa: <a href="_Object">object::Object</a>&lt;FA&gt;, token_obj: <a href="_Object">object::Object</a>&lt;TokenType&gt;, amount: u64)
+</code></pre>
+
+
+
+<a id="0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_unequip_trait"></a>
 
 ## Function `unequip_trait`
 
-Decompose one object
 
 
-<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_studio_unequip_trait">unequip_trait</a>(owner_signer: &<a href="">signer</a>, composable_object: <a href="_Object">object::Object</a>&lt;<a href="core.md#0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_core_Composable">core::Composable</a>&gt;, trait_object: <a href="_Object">object::Object</a>&lt;<a href="core.md#0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_core_Trait">core::Trait</a>&gt;, new_uri: <a href="_String">string::String</a>)
+<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_unequip_trait">unequip_trait</a>(owner: &<a href="">signer</a>, composable_obj: <a href="_Object">object::Object</a>&lt;<a href="composable_token.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_composable_token_Composable">composable_token::Composable</a>&gt;, trait_obj: <a href="_Object">object::Object</a>&lt;<a href="composable_token.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_composable_token_Trait">composable_token::Trait</a>&gt;, new_uri: <a href="_String">string::String</a>)
 </code></pre>
 
 
 
-<a id="0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_studio_decompose_entire_token"></a>
+<a id="0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_unequip_fungible_asset"></a>
 
-## Function `decompose_entire_token`
-
-Decompose an entire composable token
-TODO: should be tested
+## Function `unequip_fungible_asset`
 
 
-<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_studio_decompose_entire_token">decompose_entire_token</a>(owner_signer: &<a href="">signer</a>, composable_object: <a href="_Object">object::Object</a>&lt;<a href="core.md#0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_core_Composable">core::Composable</a>&gt;, new_uri: <a href="_String">string::String</a>)
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_unequip_fungible_asset">unequip_fungible_asset</a>&lt;FA: key, TokenType: key&gt;(signer_ref: &<a href="">signer</a>, fa: <a href="_Object">object::Object</a>&lt;FA&gt;, token_obj: <a href="_Object">object::Object</a>&lt;TokenType&gt;, amount: u64)
 </code></pre>
 
 
 
-<a id="0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_studio_transfer_digital_asset"></a>
+<a id="0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_decompose_entire_composable_token"></a>
+
+## Function `decompose_entire_composable_token`
+
+
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_decompose_entire_composable_token">decompose_entire_composable_token</a>(owner: &<a href="">signer</a>, composable_obj: <a href="_Object">object::Object</a>&lt;<a href="composable_token.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_composable_token_Composable">composable_token::Composable</a>&gt;, new_uri: <a href="_String">string::String</a>)
+</code></pre>
+
+
+
+<a id="0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_transfer_digital_asset"></a>
 
 ## Function `transfer_digital_asset`
 
-Directly transfer a token to a user.
 
 
-<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_studio_transfer_digital_asset">transfer_digital_asset</a>&lt;T: key&gt;(owner_signer: &<a href="">signer</a>, token_address: <b>address</b>, new_owner_address: <b>address</b>)
+<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_transfer_digital_asset">transfer_digital_asset</a>&lt;T: key&gt;(owner: &<a href="">signer</a>, token_address: <b>address</b>, new_owner_address: <b>address</b>)
 </code></pre>
 
 
 
-<a id="0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_studio_transfer_fungible_asset"></a>
+<a id="0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_transfer_fungible_asset"></a>
 
 ## Function `transfer_fungible_asset`
 
-Directly transfer a token to a user.
 
 
-<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_studio_transfer_fungible_asset">transfer_fungible_asset</a>&lt;FA: key&gt;(signer_ref: &<a href="">signer</a>, recipient: <b>address</b>, fa: <a href="_Object">object::Object</a>&lt;FA&gt;, amount: u64)
+<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_transfer_fungible_asset">transfer_fungible_asset</a>&lt;FA: key&gt;(signer_ref: &<a href="">signer</a>, recipient: <b>address</b>, fa: <a href="_Object">object::Object</a>&lt;FA&gt;, amount: u64)
 </code></pre>
 
 
 
-<a id="0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_studio_set_token_name"></a>
+<a id="0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_set_token_name"></a>
 
 ## Function `set_token_name`
 
---------
-Mutators
---------
-set token name
 
 
-<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0x62161ae07778f042f4baf6d7af7b9b95e9bc24c57f311159a1ef68edc622be62_studio_set_token_name">set_token_name</a>(signer_ref: &<a href="">signer</a>, token_object_address: <b>address</b>, new_name: <a href="_String">string::String</a>)
+<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_set_token_name">set_token_name</a>&lt;T: key&gt;(signer_ref: &<a href="">signer</a>, token_obj: <a href="_Object">object::Object</a>&lt;T&gt;, new_name: <a href="_String">string::String</a>)
+</code></pre>
+
+
+
+<a id="0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_set_token_description"></a>
+
+## Function `set_token_description`
+
+
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_set_token_description">set_token_description</a>&lt;T: key&gt;(signer_ref: &<a href="">signer</a>, token_obj: <a href="_Object">object::Object</a>&lt;T&gt;, new_description: <a href="_String">string::String</a>)
+</code></pre>
+
+
+
+<a id="0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_set_trait_token_uri"></a>
+
+## Function `set_trait_token_uri`
+
+
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_set_trait_token_uri">set_trait_token_uri</a>(signer_ref: &<a href="">signer</a>, trait_obj: <a href="_Object">object::Object</a>&lt;<a href="composable_token.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_composable_token_Trait">composable_token::Trait</a>&gt;, new_uri: <a href="_String">string::String</a>)
+</code></pre>
+
+
+
+<a id="0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_add_property_to_token"></a>
+
+## Function `add_property_to_token`
+
+
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_add_property_to_token">add_property_to_token</a>&lt;T: key&gt;(signer_ref: &<a href="">signer</a>, token_obj: <a href="_Object">object::Object</a>&lt;T&gt;, key: <a href="_String">string::String</a>, type: <a href="_String">string::String</a>, value: <a href="">vector</a>&lt;u8&gt;)
+</code></pre>
+
+
+
+<a id="0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_add_typed_property_to_token"></a>
+
+## Function `add_typed_property_to_token`
+
+
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_add_typed_property_to_token">add_typed_property_to_token</a>&lt;T: key, V: drop&gt;(signer_ref: &<a href="">signer</a>, token_obj: <a href="_Object">object::Object</a>&lt;T&gt;, key: <a href="_String">string::String</a>, value: V)
+</code></pre>
+
+
+
+<a id="0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_update_property_from_token"></a>
+
+## Function `update_property_from_token`
+
+
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_update_property_from_token">update_property_from_token</a>&lt;T: key&gt;(signer_ref: &<a href="">signer</a>, token_obj: <a href="_Object">object::Object</a>&lt;T&gt;, key: <a href="_String">string::String</a>, value: <a href="">vector</a>&lt;u8&gt;)
+</code></pre>
+
+
+
+<a id="0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_remove_property_from_token"></a>
+
+## Function `remove_property_from_token`
+
+
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a_studio_remove_property_from_token">remove_property_from_token</a>&lt;T: key&gt;(signer_ref: &<a href="">signer</a>, token_obj: <a href="_Object">object::Object</a>&lt;T&gt;, key: <a href="_String">string::String</a>)
 </code></pre>
