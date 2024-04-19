@@ -1,5 +1,5 @@
 #[test_only]
-module composable_token::composables_test {
+module composable_token::composable_token_test {
 
     use aptos_framework::account;
     use aptos_framework::object;
@@ -9,7 +9,7 @@ module composable_token::composables_test {
     use std::signer;
     use std::string;
 
-    use composable_token::composables::{Self, Collection, Composable, Trait};
+    use composable_token::composable_token::{Self, Collection, Composable, Trait};
     use composable_token::test_utils;
 
     const COLLECTION_1_NAME: vector<u8> = b"Collection 1";
@@ -121,13 +121,13 @@ module composable_token::composables_test {
 
         // equip the trait to the composable
         let uri_after_equipping_trait = string::utf8(b"URI after equipping trait");
-        composables::equip_trait(creator, composable_obj, trait_obj, uri_after_equipping_trait);
+        composable_token::equip_trait(creator, composable_obj, trait_obj, uri_after_equipping_trait);
         // TODO: check that the trait is equipped correctly
         // TODO: check events are emited correctly
 
         // unequip the trait from the composable  
         let uri_after_unequipping_trait = string::utf8(b"URI after unequipping trait");  
-        composables::unequip_trait(creator, composable_obj, trait_obj, uri_after_unequipping_trait);
+        composable_token::unequip_trait(creator, composable_obj, trait_obj, uri_after_unequipping_trait);
         // TODO: check that the trait is unequipped correctly
         // TODO: check events are emited correctly
     }
@@ -172,7 +172,7 @@ module composable_token::composables_test {
 
         // equip the trait to the composable
         let uri_after_equipping_trait = string::utf8(b"URI after equipping trait");
-        composables::equip_trait(creator, composable_obj, trait_obj, uri_after_equipping_trait);
+        composable_token::equip_trait(creator, composable_obj, trait_obj, uri_after_equipping_trait);
         // TODO: check that the trait is equipped correctly
         // TODO: check events are emited correctly
     }
@@ -208,19 +208,19 @@ module composable_token::composables_test {
         let composable_token_addr = object::object_address(&composable_obj);
         let trait_token_addr = object::object_address(&trait_obj);
 
-        composables::transfer_token<Composable>(alice, composable_token_addr, signer::address_of(bob));
+        composable_token::transfer_token<Composable>(alice, composable_token_addr, signer::address_of(bob));
         // TODO: check that transfer is successful
         // TODO: check events are emited correctly
 
         // transfer trait to bob
-        composables::transfer_token<Trait>(alice, trait_token_addr, signer::address_of(bob));
+        composable_token::transfer_token<Trait>(alice, trait_token_addr, signer::address_of(bob));
 
         // TODO: check that transfer is successful
         // TODO: check events are emited correctly
         
         // bob equip trait to composable
         let uri_after_equipping_trait = string::utf8(b"URI after equipping trait");
-        composables::equip_trait(bob, composable_obj, trait_obj, uri_after_equipping_trait);
+        composable_token::equip_trait(bob, composable_obj, trait_obj, uri_after_equipping_trait);
         // TODO: check that the trait is equipped correctly
         // TODO: check events are emited correctly
     }

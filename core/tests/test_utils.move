@@ -21,7 +21,7 @@ module composable_token::test_utils {
     use std::string::{Self, String};
     use std::type_info;
     use std::vector;
-    use composable_token::composables::{Self, Collection, Composable, Trait, Named, Indexed};
+    use composable_token::composable_token::{Self, Collection, Composable, Trait, Named, Indexed};
     use std::features;
 
     // collection 
@@ -72,7 +72,7 @@ module composable_token::test_utils {
         max_supply: Option<u64>, // if the collection is set to haved a fixed supply.
     ): object::ConstructorRef {
         if (type_info::type_of<T>() == type_info::type_of<collection::UnlimitedSupply>()) {
-            composables::create_collection<collection::UnlimitedSupply>(
+            composable_token::create_collection<collection::UnlimitedSupply>(
                 signer_ref,
                 string::utf8(COLLECTION_DESCRIPTION),
                 option::none(), 
@@ -92,7 +92,7 @@ module composable_token::test_utils {
                 option::some(2),
             )
         } else if (type_info::type_of<T>() == type_info::type_of<collection::FixedSupply>()) {
-            composables::create_collection<collection::FixedSupply>(
+            composable_token::create_collection<collection::FixedSupply>(
                 signer_ref,
                 string::utf8(COLLECTION_DESCRIPTION),
                 max_supply, 
@@ -119,7 +119,7 @@ module composable_token::test_utils {
     // create a composable
     public fun create_named_composable_token_helper(signer_ref: &signer, collection_name: vector<u8>, composable_name: vector<u8>): object::ConstructorRef {
         // let type = string::utf8(b"");   // Composable token does not have a type
-        composables::create_token<Composable, Named>(
+        composable_token::create_token<Composable, Named>(
             signer_ref,
             string::utf8(collection_name),
             string::utf8(COMPOSABLE_DESCRIPTION),
@@ -137,7 +137,7 @@ module composable_token::test_utils {
 
     // create a trait
     public fun create_named_trait_token_helper(signer_ref: &signer, collection_name: vector<u8>, trait_name: vector<u8>): object::ConstructorRef {
-        composables::create_token<Trait, Named>(
+        composable_token::create_token<Trait, Named>(
             signer_ref,
             string::utf8(collection_name),
             string::utf8(TRAIT_DESCRIPTION),

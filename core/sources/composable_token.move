@@ -20,7 +20,7 @@
         - some functions can be generic.
 */
 
-module composable_token::composables {
+module composable_token::composable_token {
     
     use aptos_framework::event;
     use aptos_framework::object::{Self, Object};
@@ -110,7 +110,7 @@ module composable_token::composables {
     }
 
     #[resource_group_member(group = aptos_framework::object::ObjectGroup)]
-    // Storage state for composables; aka, the atom/primary of the token
+    // Storage state for composable_token; aka, the atom/primary of the token
     struct Composable has key {
         traits: vector<Object<Trait>>,
         digital_assets: vector<Object<DA>>
@@ -120,7 +120,7 @@ module composable_token::composables {
     // Storage state for traits
     struct Trait has key {
         parent: Option<address>, // address of parent token if equipped
-        index: u64, // index of the trait in the traits vector from composables
+        index: u64, // index of the trait in the traits vector from composable_token
         digital_assets: vector<Object<DA>> // digital assets that the trait holds
     }
 
@@ -128,7 +128,7 @@ module composable_token::composables {
     // Storage state for digital assets
     struct DA has key {
         parent: Option<address>, // address of parent token if equipped
-        index: u64, // index of the da in the digital_assets vector from composables or traits
+        index: u64, // index of the da in the digital_assets vector from composable_token or traits
     }
 
     #[resource_group_member(group = aptos_framework::object::ObjectGroup)]
@@ -185,10 +185,10 @@ module composable_token::composables {
     ): CollectionMetadata acquires Collection {
         let creator_addr = collection::creator<Collection>(collection_object);
         let collection_addr = object::object_address(&collection_object);
-        let supply_type = get_collection_supply_type(collection_object);
+        let supply_type = collection_supply_type(collection_object);
         let description = collection::description<Collection>(collection_object);
         let name = collection::name<Collection>(collection_object);
-        let symbol = get_collection_symbol(collection_object);
+        let symbol = collection_symbol(collection_object);
         let uri = collection::uri<Collection>(collection_object);
         let mutable_description = is_mutable_collection_description(collection_object);
         let mutable_royalty = is_mutable_collection_royalty(collection_object);
@@ -1229,7 +1229,7 @@ module composable_token::composables {
         emit_trait_equipped_event(
             composable_object,
             trait_object,
-            get_index<Trait>(trait_object),
+            index<Trait>(trait_object),
             token::uri<Trait>(trait_object)
         );
     }
@@ -1258,7 +1258,7 @@ module composable_token::composables {
         emit_digital_asset_equipped_event(
             object::object_address(&composable_object),
             da_object,
-            get_index<DA>(da_object),
+            index<DA>(da_object),
             token::uri<DA>(da_object)
         );
     }
@@ -1285,7 +1285,7 @@ module composable_token::composables {
         emit_digital_asset_equipped_event(
             object::object_address(&trait_object),
             da_object,
-            get_index<DA>(da_object),
+            index<DA>(da_object),
             token::uri<DA>(da_object)
         );
     }
@@ -1543,76 +1543,89 @@ module composable_token::composables {
         borrow_global_mut<Composable>(composable_address).traits
     }
 
+    #[view]
     public fun is_mutable_collection_description<T: key>(
         collection: Object<T>,
     ): bool acquires Collection {
         borrow_collection(&collection).mutable_description
     }
 
+    #[view]
     public fun is_mutable_collection_royalty<T: key>(
         collection: Object<T>,
     ): bool acquires Collection {
         option::is_some(&borrow_collection(&collection).royalty_mutator_ref)
     }
 
+    #[view]
     public fun is_mutable_collection_uri<T: key>(
         collection: Object<T>,
     ): bool acquires Collection {
         borrow_collection(&collection).mutable_uri
     }
 
+    #[view]
     public fun is_mutable_collection_token_description<T: key>(
         collection: Object<T>,
     ): bool acquires Collection {
         borrow_collection(&collection).mutable_token_description
     }
 
+    #[view]
     public fun is_mutable_collection_token_name<T: key>(
         collection: Object<T>,
     ): bool acquires Collection {
         borrow_collection(&collection).mutable_token_name
     }
 
+    #[view]
     public fun is_mutable_collection_token_uri<T: key>(
         collection: Object<T>,
     ): bool acquires Collection {
         borrow_collection(&collection).mutable_token_uri
     }
 
+    #[view]
     public fun is_mutable_collection_token_properties<T: key>(
         collection: Object<T>,
     ): bool acquires Collection {
         borrow_collection(&collection).mutable_token_properties
     }
 
+    #[view]
     public fun are_collection_tokens_burnable<T: key>(
         collection: Object<T>,
     ): bool acquires Collection {
         borrow_collection(&collection).tokens_burnable_by_creator
     }
 
+    #[view]
     public fun are_collection_tokens_freezable<T: key>(
         collection: Object<T>,
     ): bool acquires Collection {
         borrow_collection(&collection).tokens_freezable_by_creator
     }
 
-    public fun get_collection_name(collection_object: Object<Collection>): String acquires Collection {
+    #[view]
+    public fun collection_name(collection_object: Object<Collection>): String acquires Collection {
         let object_address = object::object_address(&collection_object);
         borrow_global<Collection>(object_address).name
     }
 
-    public fun get_collection_symbol(collection_object: Object<Collection>): String acquires Collection {
+    #[view]
+    public fun collection_symbol(collection_object: Object<Collection>): String acquires Collection {
         let object_address = object::object_address(&collection_object);
         borrow_global<Collection>(object_address).symbol
     }
 
-    public fun get_collection_supply_type(collection_object: Object<Collection>): String acquires Collection {
+    #[view]
+    public fun collection_supply_type(collection_object: Object<Collection>): String acquires Collection {
         let object_address = object::object_address(&collection_object);
         borrow_global<Collection>(object_address).supply_type
     }
 
-    public fun get_parent_token<T: key>(token: Object<T>): address acquires Trait, DA {
+    #[view]
+    public fun parent_token<T: key>(token: Object<T>): address acquires Trait, DA {
         let obj_addr = object::object_address(&token);
         if (type_info::type_of<T>() == type_info::type_of<Trait>()) {
             let parent = borrow_global<Trait>(obj_addr).parent;
@@ -1623,7 +1636,8 @@ module composable_token::composables {
         } else { abort EUNKNOWN_TOKEN_TYPE }
     }
 
-    public fun get_index<T: key>(token_obj: Object<T>): u64 acquires Trait, DA {
+    #[view]
+    public fun index<T: key>(token_obj: Object<T>): u64 acquires Trait, DA {
         let obj_addr = object::object_address(&token_obj);
         if (type_info::type_of<T>() == type_info::type_of<Trait>()) {
             borrow_global<Trait>(obj_addr).index
@@ -1632,37 +1646,44 @@ module composable_token::composables {
         } else { abort EUNKNOWN_TOKEN_TYPE }
     }
 
-    public fun get_traits_from_composable(composable_object: Object<Composable>): vector<Object<Trait>> acquires Composable {
+    #[view]
+    public fun traits_from_composable(composable_object: Object<Composable>): vector<Object<Trait>> acquires Composable {
         let object_address = object::object_address(&composable_object);
         borrow_global<Composable>(object_address).traits  
     }
 
+    #[view]
     public fun are_properties_mutable<T: key>(token: Object<T>): bool acquires Collection {
         let collection = token::collection_object(token);
         borrow_collection(&collection).mutable_token_properties
     }
 
+    #[view]
     public fun is_burnable<T: key>(token: Object<T>): bool acquires References {
         option::is_some(&borrow_refs(&token).burn_ref)
     }
 
+    #[view]
     public fun is_freezable_by_creator<T: key>(token: Object<T>): bool acquires Collection {
         are_collection_tokens_freezable(token::collection_object(token))
     }
 
+    #[view]
     public fun is_mutable_description<T: key>(token: Object<T>): bool acquires Collection {
         is_mutable_collection_token_description(token::collection_object(token))
     }
 
+    #[view]
     public fun is_mutable_name<T: key>(token: Object<T>): bool acquires Collection {
         is_mutable_collection_token_name(token::collection_object(token))
     }
 
+    #[view]
     public fun is_mutable_uri<T: key>(token: Object<T>): bool acquires Collection {
         is_mutable_collection_token_uri(token::collection_object(token))
     }
 
-    public fun get_token_signer<T: key>(token: Object<T>): signer acquires References {
+    fun token_signer<T: key>(token: Object<T>): signer acquires References {
         object::generate_signer_for_extending(&borrow_refs(&token).extend_ref)
     }
 

@@ -8,6 +8,7 @@ module composable_token::resource_manager {
     use aptos_framework::account::{Self, SignerCapability};
     use std::signer;
 
+    friend composable_token::batch_mint;
     friend composable_token::token_migrate;
 
     /// Stores permission config such as SignerCapability for controlling the resource account.
@@ -38,13 +39,13 @@ module composable_token::resource_manager {
 
     /// Can be called by friended modules to obtain the resource account signer.
     /// Function will panic if the module is not friended or does not exist.
-    public(friend) fun get_signer(): signer acquires PermissionConfig {
+    public(friend) fun resource_signer(): signer acquires PermissionConfig {
         let signer_cap = &borrow_global<PermissionConfig>(@composable_token).signer_cap;
         account::create_signer_with_capability(signer_cap)
     }
 
     #[view]
-    public fun get_resource_address(): address acquires PermissionConfig {
+    public fun resource_address(): address acquires PermissionConfig {
         borrow_global<PermissionConfig>(@composable_token).resource_addr
     }
 

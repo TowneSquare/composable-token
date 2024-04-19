@@ -48,7 +48,7 @@ module composable_token::token_migrate {
         assert!(signer::address_of(signer_ref) == @composable_token, 1);
         // create a collection with unlimited supply
         collection::create_unlimited_collection(
-            &resource_manager::get_signer(),
+            &resource_manager::resource_signer(),
             string::utf8(b"transform your NFTv1 into NFTv2"),
             string::utf8(b"Migrated NFTs"),
             option::none(),
@@ -89,7 +89,7 @@ module composable_token::token_migrate {
 
         // mint a new token v2 with the metadata
         let constructor_ref = token_v2::create(
-            &resource_manager::get_signer(), 
+            &resource_manager::resource_signer(), 
             string::utf8(b"Migrated NFTs"),
             token_description,
             token_name,
@@ -98,7 +98,7 @@ module composable_token::token_migrate {
         );
         // transfer it to the signer
         let new_token_obj = object::object_from_constructor_ref<token_v2::Token>(&constructor_ref);
-        object::transfer<token_v2::Token>(&resource_manager::get_signer(), new_token_obj, signer_addr);
+        object::transfer<token_v2::Token>(&resource_manager::resource_signer(), new_token_obj, signer_addr);
         // burn the token v1
         token_v1::burn(signer_ref, creator_addr, collection_name, token_name, property_version, 1);
 
@@ -143,12 +143,12 @@ module composable_token::token_migrate {
     use aptos_framework::account;
 
     #[test_only]
-    public fun get_collection_name(): String {
+    public fun collection_name(): String {
         string::utf8(b"test collection")
     }
 
     #[test_only]
-    public fun get_token_name(): String {
+    public fun token_name(): String {
         string::utf8(b"test token")
     }
 
@@ -168,7 +168,7 @@ module composable_token::token_migrate {
 
         token_v1::create_collection(
             creator,
-            get_collection_name(),
+            collection_name(),
             string::utf8(b"Collection: Hello, World"),
             string::utf8(b"https://aptos.dev"),
             collection_max,
@@ -181,8 +181,8 @@ module composable_token::token_migrate {
         let mutate_setting = token_mutate_setting;
         token_v1::create_token_script(
             creator,
-            get_collection_name(),
-            get_token_name(),
+            collection_name(),
+            token_name(),
             string::utf8(b"Hello, Token"),
             amount,
             token_max,
@@ -195,7 +195,7 @@ module composable_token::token_migrate {
             default_vals,
             default_types,
         );
-        token_v1::create_token_id_raw(signer::address_of(creator), get_collection_name(), get_token_name(), 0)
+        token_v1::create_token_id_raw(signer::address_of(creator), collection_name(), token_name(), 0)
     }
 
     #[test_only]
@@ -236,12 +236,12 @@ module composable_token::token_migrate {
         assert!(token_v1::balance_of(signer::address_of(creator), token_id) == 2, 1);
         token_v1::opt_in_direct_transfer(alice, true);
         token_v1::initialize_token_store(alice);
-        // token_v1::transfer_with_opt_in(creator, signer::address_of(creator), get_collection_name(),get_token_name(), 1, signer::address_of(alice), 1);
+        // token_v1::transfer_with_opt_in(creator, signer::address_of(creator), collection_name(),token_name(), 1, signer::address_of(alice), 1);
         // let token = token_v1::withdraw_token(alice, token_id, 1);
         // token_v1::direct_deposit_with_opt_in(signer::address_of(alice), token);
         token_v1::transfer(creator, token_id, signer::address_of(alice), 1);
         // migrate it to v2
-        let (_, token_v2_addr) = from_v1_to_v2_by_owner_internal(alice, signer::address_of(creator), get_collection_name(), get_token_name(), 0);
+        let (_, token_v2_addr) = from_v1_to_v2_by_owner_internal(alice, signer::address_of(creator), collection_name(), token_name(), 0);
         // assert token v1 is burned
         assert!(token_v1::balance_of(signer::address_of(alice), token_id) == 0, 2);
         // TODO: explore more explicit way to check if token is burned
