@@ -216,7 +216,7 @@ module composable_token::token_migrate {
         creator: &signer,
     ) {
         // auid and events
-        features::change_feature_flags(std, vector[23, 26], vector[]);
+        // features::change_feature_flags(std, vector[23, 26], vector[]);
         account::create_account_for_test(signer::address_of(ts));
         init_test(ts, string::utf8(b"test uri"));
         account::create_account_for_test(signer::address_of(alice));

@@ -40,11 +40,11 @@ module composable_token::test_utils {
 
     public fun prepare_for_test(std: signer) {
         // auid and events
-        features::change_feature_flags(&std, vector[23, 26], vector[]);
+        // features::change_feature_flags(&std, vector[23], vector[]);
     }
 
     public fun prepare_for_mint_test(std: signer, user_a: &signer, user_b: &signer) {
-        features::change_feature_flags(&std, vector[23, 26], vector[]);
+        // features::change_feature_flags(&std, vector[23], vector[]);
         prepare_account_for_test(&std, user_a, user_b);
     }
 
