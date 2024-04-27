@@ -117,11 +117,11 @@ module composable_token::test_utils {
     }
 
     // create a composable
-    public fun create_named_composable_token_helper(signer_ref: &signer, collection_name: vector<u8>, composable_name: vector<u8>): object::ConstructorRef {
+    public fun create_named_composable_token_helper(signer_ref: &signer, collection: Object<Collection>, composable_name: vector<u8>): object::ConstructorRef {
         // let type = string::utf8(b"");   // Composable token does not have a type
         composable_token::create_token<Composable, Named>(
             signer_ref,
-            string::utf8(collection_name),
+            collection,
             string::utf8(COMPOSABLE_DESCRIPTION),
             string::utf8(composable_name),
             string::utf8(b""),
@@ -136,10 +136,10 @@ module composable_token::test_utils {
     }
 
     // create a trait
-    public fun create_named_trait_token_helper(signer_ref: &signer, collection_name: vector<u8>, trait_name: vector<u8>): object::ConstructorRef {
+    public fun create_named_trait_token_helper(signer_ref: &signer, collection: Object<Collection>, trait_name: vector<u8>): object::ConstructorRef {
         composable_token::create_token<Trait, Named>(
             signer_ref,
-            string::utf8(collection_name),
+            collection,
             string::utf8(TRAIT_DESCRIPTION),
             string::utf8(trait_name),
             string::utf8(b""),

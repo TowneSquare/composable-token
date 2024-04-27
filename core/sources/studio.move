@@ -261,7 +261,7 @@ module composable_token::studio {
     // Create a named composable token with no royalty
     public entry fun create_named_composable_token_with_no_royalty(
         signer_ref: &signer,
-        collection: String,
+        collection: Object<Collection>,
         description: String,
         name: String,
         uri: String,
@@ -297,7 +297,7 @@ module composable_token::studio {
     // Create a named composable token with royalty
     public entry fun create_named_composable_token_with_royalty(
         signer_ref: &signer,
-        collection: String,
+        collection: Object<Collection>,
         description: String,
         name: String,
         uri: String,
@@ -335,7 +335,7 @@ module composable_token::studio {
     // Create an indexed composable token with royalty 
     public entry fun create_indexed_composable_token_with_royalty(
         signer_ref: &signer,
-        collection: String,
+        collection: Object<Collection>,
         description: String,
         uri: String,
         royalty_numerator: u64,
@@ -372,7 +372,7 @@ module composable_token::studio {
     // Create an indexed composable token without royalty 
     public entry fun create_indexed_composable_token_with_no_royalty(
         signer_ref: &signer,
-        collection: String,
+        collection: Object<Collection>,
         description: String,
         uri: String,
         property_keys: vector<String>,
@@ -407,7 +407,7 @@ module composable_token::studio {
     // Create a named trait token with no royalty
     public entry fun create_named_trait_token_with_no_royalty(
         signer_ref: &signer,
-        collection: String,
+        collection: Object<Collection>,
         description: String,
         name: String,
         uri: String,
@@ -443,7 +443,7 @@ module composable_token::studio {
     // Create a named trait token with royalty
     public entry fun create_named_trait_token_with_royalty(
         signer_ref: &signer,
-        collection: String,
+        collection: Object<Collection>,
         description: String,
         name: String,
         uri: String,
@@ -474,7 +474,7 @@ module composable_token::studio {
     // Create an indexed trait token with royalty
     public entry fun create_indexed_trait_token_with_royalty(
         signer_ref: &signer,
-        collection: String,
+        collection: Object<Collection>,
         description: String,
         uri: String,
         royalty_numerator: u64,
@@ -511,7 +511,7 @@ module composable_token::studio {
     // Create an indexed trait token with royalty off
     public entry fun create_indexed_trait_token_with_no_royalty(
         signer_ref: &signer,
-        collection: String,
+        collection: Object<Collection>,
         description: String,
         uri: String,
         property_keys: vector<String>,
@@ -626,10 +626,10 @@ module composable_token::studio {
     // Directly transfer a token to a user.
     public entry fun transfer_digital_asset<T: key>(
         owner: &signer, 
-        token_address: address,
+        token: Object<T>,
         new_owner_address: address,
     ) {
-        composable_token::transfer_token<T>(owner, token_address, new_owner_address);
+        composable_token::transfer_token(owner, token, new_owner_address);
     }
 
     // Directly transfer a token to a user.

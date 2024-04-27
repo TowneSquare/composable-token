@@ -18,8 +18,9 @@ module composable_token::batch_mint {
     use std::option::Option;
     use std::signer;
     use std::string::{Self, String};
+    use aptos_framework::object::Object;
 
-    use composable_token::composable_token::{Self, Composable, Trait, Indexed };
+    use composable_token::composable_token::{Self, Composable, Trait, Indexed, Collection };
     use composable_token::resource_manager;
 
     const ENOT_ADMIN: u64 = 0;
@@ -48,7 +49,7 @@ module composable_token::batch_mint {
     // tokens will be named this ways: <name_with_index_prefix+i+name_with_index_suffix>
     public entry fun batch_create_composable_token(
         creator_signer: &signer,
-        collection: String,
+        collection: Object<Collection>,
         number_of_tokens_to_mint: u64,
         description: String,
         name_with_index_prefix: String,
@@ -90,14 +91,14 @@ module composable_token::batch_mint {
                 }
             );
             // transfer
-            composable_token::transfer_token<Composable>(creator_signer, obj_addr, escrow_addr);
+            composable_token::transfer_token<Composable>(creator_signer, token_obj, escrow_addr);
             i = i + 1;
         }   
     }
 
     public entry fun batch_create_traits(
         creator_signer: &signer,
-        collection: String,
+        collection: Object<Collection>,
         number_of_tokens_to_mint: u64,
         description: String,
         name_with_index_prefix: String,
@@ -138,7 +139,7 @@ module composable_token::batch_mint {
                 }
             );
             // transfer
-            composable_token::transfer_token<Trait>(creator_signer, obj_addr, escrow_addr);
+            composable_token::transfer_token<Trait>(creator_signer, token_obj, escrow_addr);
             i = i + 1;
         }
     }
@@ -149,19 +150,19 @@ module composable_token::batch_mint {
 
     // Assuming an NFT is already created, this function transfers it to the minter/caller
     // the minter pays the mint price to the creator
-    public entry fun mint_token<Type: key>(signer_ref: &signer, token_addr: address) acquires MintData {
+    public entry fun mint_token<Type: key>(signer_ref: &signer, token: Object<Type>) acquires MintData {
         let signer_addr = signer::address_of(signer_ref);
-        let creator_addr = creator_addr_from_token_addr(token_addr);
+        let creator_addr = token::creator(token);
         assert!(
             type_info::type_of<Type>() == type_info::type_of<Composable>() || type_info::type_of<Type>() == type_info::type_of<Trait>(), 
             ETYPE_NOT_RECOGNIZED
         );
         // get mint price
-        let mint_price = base_mint_price(token_addr);
+        let mint_price = base_mint_price(token);
         assert!(coin::balance<APT>(signer_addr) >= mint_price, EINSUFFICIENT_FUNDS);
         // transfer composable from resource acc to the minter
         let resource_signer = &resource_manager::resource_signer();
-        composable_token::transfer_token<Type>(resource_signer, token_addr, signer_addr);
+        composable_token::transfer_token<Type>(resource_signer, token, signer_addr);
         // transfer mint price to creator
         coin::transfer<APT>(signer_ref, creator_addr, mint_price);
     }
@@ -172,17 +173,8 @@ module composable_token::batch_mint {
 
     #[view]
     // get mint price of a given token
-    public fun base_mint_price(token_addr: address): u64 acquires MintData {
-        borrow_global<MintData>(token_addr).base_mint_price
-    }
-
-    // ----------------
-    // Helper functions
-    // ----------------
-
-    inline fun creator_addr_from_token_addr(token_addr: address): address {
-        let token_obj = object::address_to_object<TokenV2>(token_addr);
-        token::creator<TokenV2>(token_obj)
+    public fun base_mint_price<T: key>(token: Object<T>): u64 acquires MintData {
+        borrow_global<MintData>(object::object_address(&token)).base_mint_price
     }
 
     // ----------
