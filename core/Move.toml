@@ -5,23 +5,15 @@ authors = ["lay (Aladeen)"]
 
 [addresses]
 composable_token = "0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a"
+minter = '_'
 
 [dev-addresses]
+minter = "0x123"
 
-[dependencies.AptosFramework]
-git = "https://github.com/aptos-labs/aptos-core.git"
-rev = "main"
-subdir = "aptos-move/framework/aptos-framework"
-
-[dependencies.AptosTokenObjects]
-git = "https://github.com/aptos-labs/aptos-core.git"
-rev = "main"
-subdir = "aptos-move/framework/aptos-token-objects"
-
-[dependencies.AptosToken]
-git = "https://github.com/aptos-labs/aptos-core.git"
-rev = "main"
-subdir = "aptos-move/framework/aptos-token"
+[dependencies.TokenMinter]
+git = 'https://github.com/aptos-labs/token-minter.git'
+rev = 'main'
+subdir = 'token-minter/'
 
 [dev-dependencies]
 

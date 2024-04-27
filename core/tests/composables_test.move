@@ -63,7 +63,7 @@ module composable_token::composable_token_test {
         
         let composable_constructor_ref = test_utils::create_named_composable_token_helper(
             creator,
-            COLLECTION_1_NAME, 
+            collection_obj,
             COMPOSABLE_1_NAME
         );
 
@@ -80,11 +80,11 @@ module composable_token::composable_token_test {
             COLLECTION_1_NAME, 
             option::some(100)
         );
-        // let collection_obj = object::object_from_constructor_ref<Collection>(&collection_constructor_ref);
+        let collection_obj = object::object_from_constructor_ref<Collection>(&collection_constructor_ref);
         
         let trait_constructor_ref = test_utils::create_named_trait_token_helper(
             creator,
-            COLLECTION_1_NAME,
+            collection_obj,
             TRAIT_1_NAME
         );
 
@@ -102,16 +102,17 @@ module composable_token::composable_token_test {
             COLLECTION_1_NAME, 
             option::some(100)
         );
+        let collection_obj = object::object_from_constructor_ref<Collection>(&collection_constructor_ref);
         
         let composable_constructor_ref = test_utils::create_named_composable_token_helper(
             creator,
-            COLLECTION_1_NAME, 
+            collection_obj,
             COMPOSABLE_1_NAME
         );
 
         let trait_constructor_ref = test_utils::create_named_trait_token_helper(
             creator,
-            COLLECTION_1_NAME,
+            collection_obj,
             TRAIT_1_NAME
         );
 
@@ -142,29 +143,29 @@ module composable_token::composable_token_test {
             COLLECTION_1_NAME, 
             option::some(100)
         );
+        let collection_obj_1 = object::object_from_constructor_ref(&collection_1_constructor_ref);
 
         let collection_2_constructor_ref = test_utils::create_collection_helper<FixedSupply>(
             creator,
             COLLECTION_2_NAME, 
             option::some(100)
         );
+        let collection_obj_2 = object::object_from_constructor_ref(&collection_2_constructor_ref);
         
         let composable_constructor_ref = test_utils::create_named_composable_token_helper(
             creator,
-            COLLECTION_2_NAME, 
+            collection_obj_1,
             COMPOSABLE_1_NAME
         );
 
         let trait_constructor_ref = test_utils::create_named_trait_token_helper(
             creator,
-            COLLECTION_1_NAME,
+            collection_obj_2,
             TRAIT_1_NAME
         );
 
         let composable_obj = object::object_from_constructor_ref<Composable>(&composable_constructor_ref);
         let trait_obj = object::object_from_constructor_ref<Trait>(&trait_constructor_ref);
-        let collection_1_obj = object::object_from_constructor_ref<Collection>(&collection_1_constructor_ref);
-        // let collection_2_obj = object::object_from_constructor_ref<Collection>(&collection_2_constructor_ref);
 
         // debug::print<address>(&object::owner<Collection>(collection_1_obj));
         // debug::print<address>(&object::owner<Composable>(composable_obj));
@@ -178,7 +179,7 @@ module composable_token::composable_token_test {
     }
 
     #[test(std = @0x1, alice = @0x123, bob = @0x456)]
-    // test transfer and equip; alice creates a token, transfers it to bob, and bob tries to equip a trait to it
+    // test transfer and equip; alice creates a token, transfers it to bob, and alice tries to equip a trait to it
     fun transfer_and_equip(std: signer, alice: &signer, bob: &signer) {
         test_utils::prepare_for_test(std);
 
@@ -187,40 +188,38 @@ module composable_token::composable_token_test {
             COLLECTION_1_NAME, 
             option::some(100)
         );
+        let collection_obj = object::object_from_constructor_ref(&collection_constructor_ref);
         
         let composable_constructor_ref = test_utils::create_named_composable_token_helper(
             alice,
-            COLLECTION_1_NAME, 
+            collection_obj,
             COMPOSABLE_1_NAME
         );
+        let composable_obj = object::object_from_constructor_ref(&composable_constructor_ref);
 
         let trait_constructor_ref = test_utils::create_named_trait_token_helper(
             alice,
-            COLLECTION_1_NAME,
+            collection_obj,
             TRAIT_1_NAME
         );
-
-        let composable_obj = object::object_from_constructor_ref<Composable>(&composable_constructor_ref);
-        let trait_obj = object::object_from_constructor_ref<Trait>(&trait_constructor_ref);
-        // let collection_obj = object::object_from_constructor_ref<Collection>(&collection_constructor_ref);
+        let trait_obj = object::object_from_constructor_ref(&trait_constructor_ref);
 
         // transfer composable to bob
-        let composable_token_addr = object::object_address(&composable_obj);
-        let trait_token_addr = object::object_address(&trait_obj);
-
-        composable_token::transfer_token<Composable>(alice, composable_token_addr, signer::address_of(bob));
+        composable_token::transfer_token<Composable>(alice, composable_obj, signer::address_of(bob));
         // TODO: check that transfer is successful
         // TODO: check events are emited correctly
 
         // transfer trait to bob
-        composable_token::transfer_token<Trait>(alice, trait_token_addr, signer::address_of(bob));
+        composable_token::transfer_token<Trait>(alice, trait_obj, signer::address_of(bob));
 
         // TODO: check that transfer is successful
         // TODO: check events are emited correctly
         
-        // bob equip trait to composable
+        // bob equip trait to composable - bob cannot do this as alice is the creator of the token's collection
         let uri_after_equipping_trait = string::utf8(b"URI after equipping trait");
-        composable_token::equip_trait(bob, composable_obj, trait_obj, uri_after_equipping_trait);
+
+        // alice can only call equip_trait, as alice is the creator of the token's collection
+        composable_token::equip_trait(alice, composable_obj, trait_obj, uri_after_equipping_trait);
         // TODO: check that the trait is equipped correctly
         // TODO: check events are emited correctly
     }
