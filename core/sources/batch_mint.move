@@ -13,7 +13,7 @@ module composable_token::batch_mint {
 
     use aptos_std::type_info;
 
-    use aptos_token_objects::token::{Self, Token as TokenV2};
+    use aptos_token_objects::token;
 
     use std::option::Option;
     use std::signer;

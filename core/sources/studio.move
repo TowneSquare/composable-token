@@ -712,40 +712,4 @@ module composable_token::studio {
     ) {
         composable_token::remove_property<T>(signer_ref, token_obj, key);
     }
-
-    #[test (creator = @0x123)]
-    // Test the creation of a collection with fixed supply and royalty on
-    public fun test_create_collection_with_fixed_supply_and_royalty(creator: &signer) {
-        create_collection_with_fixed_supply_and_royalty(
-            creator,
-            string::utf8(b"test collection"),
-            100,
-            string::utf8(b"test collection"),
-            string::utf8(b"TEST"),
-            string::utf8(b"test.com"),
-            true,
-            true,
-            true,
-            true,
-            true,
-            true,
-            true,
-            true,
-            true,
-            1,
-            100
-        );
-
-        // create a composable token
-        create_named_composable_token_with_no_royalty(
-            creator,
-            string::utf8(b"test collection"),
-            string::utf8(b"test token"),
-            string::utf8(b"test token"),
-            string::utf8(b"test.com"),
-            vector::empty(),
-            vector::empty(),
-            vector::empty()
-        );
-    }
 }

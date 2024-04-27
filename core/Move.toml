@@ -4,16 +4,12 @@ version = "0.2.0"
 authors = ["lay (Aladeen)"]
 
 [addresses]
-composable_token = "0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a"
-minter = '_'
+composable_token = "0xd0468380702ba1857976a40af48ee5c4217a53032d4d5493929c6d2ec01aa104"
 
 [dev-addresses]
-minter = "0x123"
 
 [dependencies.TokenMinter]
-git = 'https://github.com/aptos-labs/token-minter.git'
-rev = 'main'
-subdir = 'token-minter/'
+local = "./TokenMinter"
 
 [dev-dependencies]
 

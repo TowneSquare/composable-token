@@ -32,7 +32,7 @@ module composable_token::composable_token {
     use aptos_token_objects::collection::{Self, Collection as CollectionV2};
     use aptos_token_objects::property_map;
     use aptos_token_objects::royalty;
-    use aptos_token_objects::token::{Self, Token as TokenV2};
+    use aptos_token_objects::token;
 
     use std::error;
     use std::option::{Self, Option};
