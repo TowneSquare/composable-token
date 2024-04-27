@@ -16,7 +16,8 @@
         - Organize the functions
         - add "add_royalty_to_collection/token" function
         - when creating token common, check if vectors are not empty, if so, add the vectors instead of creating empty ones.
-        - tokens uri mutability is valid when tokens does not have children (aka list of tokens is empty)
+        - tokens uri mutability is valid when tokens does not have children (aka list of tokens is empty).
+        - changing the URI of Trait and DA will require us to update the URI of the parent token as well (from parent field) if exists.
         - some functions can be generic.
 */
 
