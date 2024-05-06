@@ -12,13 +12,12 @@
         - Composable token (cNFT): A token V2 that can hold Trait tokens.
     TODOs:
         - improve error handling: should implement assert functions to eliminate redundancy.
-        - change the name for the module: Token creator? Token factory?
-        - Organize the functions
-        - add "add_royalty_to_collection/token" function
+        - Organize the functions based on alphabetical order.
         - when creating token common, check if vectors are not empty, if so, add the vectors instead of creating empty ones.
         - tokens uri mutability is valid when tokens does not have children (aka list of tokens is empty).
         - changing the URI of Trait and DA will require us to update the URI of the parent token as well (from parent field) if exists.
         - some functions can be generic.
+        - should be able to create more than one collection.
 */
 
 module composable_token::composable_token {
