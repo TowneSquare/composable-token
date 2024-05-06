@@ -4,4 +4,4 @@ Official repo for [AIP-76 - Composable Digital Assets standard](https://github.c
 
 Join the discussion: <https://github.com/aptos-foundation/AIPs/issues/402>
 
-- `testnet`: `0xacf659101f2f39123e5c9ff5486100c78a84d2ab8319c52e3795aeb29ea8db3a`
+- `testnet`: `0xed04785145925bfc9a4aee36e20ffcca61b75336d6665b097ee0785bbecf3b5b`

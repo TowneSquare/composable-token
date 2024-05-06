@@ -4,7 +4,7 @@ version = "0.2.0"
 authors = ["lay (Aladeen)"]
 
 [addresses]
-composable_token = "_"
+composable_token = "0xed04785145925bfc9a4aee36e20ffcca61b75336d6665b097ee0785bbecf3b5b"
 
 [dev-addresses]
 
