@@ -8,8 +8,8 @@ composable_token = "0x9de4ffd4d4e5d8463d0a8f7aea8d6f7a936006face568763cac335fe55
 
 [dev-addresses]
 
-[dependencies.TokenMinter]
-local = "./TokenMinter"
+# [dependencies.TokenMinter]
+# local = "./TokenMinter"
 
 [dev-dependencies]
 
