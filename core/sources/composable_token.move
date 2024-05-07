@@ -18,6 +18,7 @@
         - changing the URI of Trait and DA will require us to update the URI of the parent token as well (from parent field) if exists.
         - some functions can be generic.
         - should be able to create more than one collection.
+        - Fix typo in comment (create collection params).
 */
 
 module composable_token::composable_token {
@@ -1367,7 +1368,7 @@ module composable_token::composable_token {
         );
 
         // assert new owner is not a token
-        assert!(!object::is_object(new_owner), ENOT_OWNER);
+        assert!(!object::object_exists<token::Token>(new_owner), ENOT_OWNER);
 
         // transfer
         object::transfer(signer_ref, token, new_owner);
