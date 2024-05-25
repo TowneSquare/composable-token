@@ -224,6 +224,25 @@ module composable_token::composable_token_test {
         // TODO: check events are emited correctly
     }
 
-    // TODO: Add more tests
+    #[test(std = @0x1, alice = @0x123, bob = @0x456)]
+    // test create multiple collections under the same creator
+    fun create_multiple_collections(std: signer, alice: &signer, bob: &signer) {
+        test_utils::prepare_for_test(std);
 
+        let collection_1_constructor_ref = test_utils::create_collection_helper<FixedSupply>(
+            alice,
+            COLLECTION_1_NAME, 
+            option::some(100)
+        );
+        let collection_2_constructor_ref = test_utils::create_collection_helper<FixedSupply>(
+            alice,
+            COLLECTION_2_NAME, 
+            option::some(100)
+        );
+        
+        let collection_obj_1 = object::object_from_constructor_ref<Collection>(&collection_1_constructor_ref);
+        let collection_obj_2 = object::object_from_constructor_ref<Collection>(&collection_2_constructor_ref);
+
+        // check that the collections are created correctly
+    }
 }

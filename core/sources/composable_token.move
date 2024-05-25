@@ -1114,7 +1114,7 @@ module composable_token::composable_token {
         } else { abort EUNKNOWN_PROCESS_TYPE };
     }
 
-    // Compose trait to a composable token
+    /// Compose trait to a composable token
     public fun equip_trait(
         signer_ref: &signer,
         composable_object: Object<Composable>,
@@ -1143,7 +1143,31 @@ module composable_token::composable_token {
         );
     }
 
-    // Composose a digital asset to a composable
+    /// Compose multiple traits to a composable token
+    public fun equip_traits(
+        signer_ref: &signer,
+        composable_object: Object<Composable>,
+        trait_objects: vector<Object<Trait>>,
+        new_uri: String
+    ) acquires Composable, Trait, DA {
+        for (i in 0..vector::length(&trait_objects)) {
+            // Assert ungated transfer enabled for the object token.
+            assert!(object::ungated_transfer_allowed(trait_object), EUNGATED_TRANSFER_DISABLED);
+            // Add the object to the end of the vector
+            vector::push_back<Object<Trait>>(&mut authorized_composable_mut_borrow(&composable_object, signer_ref).traits, trait_object);
+            // Update parent
+            update_parent<Composable, Trait, Equip>(signer_ref, composable_object, trait_object);
+            // Transfer object as collection owner
+            let composable_addr = object::object_address(&composable_object);
+            token_components::transfer_as_collection_owner(signer_ref, object::convert(trait_object), composable_addr);
+            // Disable ungated transfer for trait object
+            token_components::freeze_transfer(signer_ref, object::convert(trait_object));
+        }
+        // Update the composable uri
+        update_uri(signer_ref, composable_object, new_uri);
+    }
+
+    /// Composose a digital asset to a composable
     public fun equip_digital_asset(
         signer_ref: &signer,
         composable_object: Object<Composable>,
