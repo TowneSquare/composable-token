@@ -17,8 +17,8 @@
         - tokens uri mutability is valid when tokens does not have children (aka list of tokens is empty).
         - changing the URI of Trait and DA will require us to update the URI of the parent token as well (from parent field) if exists.
         - some functions can be generic.
-        - should be able to create more than one collection.
         - Fix typo in comment (create collection params).
+        - Work on rarities
 */
 
 module composable_token::composable_token {
@@ -47,33 +47,33 @@ module composable_token::composable_token {
     // Asserts
     // -------
 
-    // The collection type is not recognised.
+    /// The collection type is not recognised.
     const EUNKNOWN_COLLECTION_TYPE: u64 = 0;
-    // The token type is not recognised.
+    /// The token type is not recognised.
     const EUNKNOWN_TOKEN_TYPE: u64 = 1;
-    // The naming style is not recognised.
+    /// The naming style is not recognised.
     const EUNKNOWN_NAMING_TYPE: u64 = 2;
-    // The collection does not exist.
+    /// The collection does not exist.
     const ECOLLECTION_DOES_NOT_EXIST: u64 = 3;
-    // The composable token does not exist.
+    /// The composable token does not exist.
     const ECOMPOSABLE_DOES_NOT_EXIST: u64 = 4;
-    // The trait token does not exist.
+    /// The trait token does not exist.
     const ETRAIT_DOES_NOT_EXIST: u64 = 5;
-    // The creator is not the signer.
+    /// The creator is not the signer.
     const ENOT_CREATOR: u64 = 6;
-    // The field is not mutable.
+    /// The field is not mutable.
     const EFIELD_NOT_MUTABLE: u64 = 7;
-    // The properties are not mutable.
+    /// The properties are not mutable.
     const EPROPERTIES_NOT_MUTABLE: u64 = 8;
-    // The ungated transfer is disabled.
+    /// The ungated transfer is disabled.
     const EUNGATED_TRANSFER_DISABLED: u64 = 9;
-    // The signer is not the owner of the token.
+    /// The signer is not the owner of the token.
     const ENOT_OWNER: u64 = 10;
-    // The references does not exist.
+    /// The references does not exist.
     const EREFS_DOES_NOT_EXIST: u64 = 11;
-    // The digital asset does not exist.
+    /// The digital asset does not exist.
     const EDA_DOES_NOT_EXIST: u64 = 12;
-    // The process type is not recognised.
+    /// The process type is not recognised.
     const EUNKNOWN_PROCESS_TYPE: u64 = 13;
 
     // TODO: add asserts functions here.
@@ -83,7 +83,7 @@ module composable_token::composable_token {
     // ---------
 
     #[resource_group_member(group = aptos_framework::object::ObjectGroup)]
-    // Storage state for collections
+    /// Storage state for collections
     struct Collection has key {
         // Name of the collection
         name: String,
@@ -94,14 +94,14 @@ module composable_token::composable_token {
     }
 
     #[resource_group_member(group = aptos_framework::object::ObjectGroup)]
-    // Storage state for composable_token; aka, the atom/primary of the token
+    /// Storage state for composable_token; aka, the atom/primary of the token
     struct Composable has key {
         traits: vector<Object<Trait>>,
         digital_assets: vector<Object<DA>>
     }
 
     #[resource_group_member(group = aptos_framework::object::ObjectGroup)]
-    // Storage state for traits
+    /// Storage state for traits
     struct Trait has key {
         parent: Option<address>, // address of parent token if equipped
         index: u64, // index of the trait in the traits vector from composable_token
@@ -109,7 +109,7 @@ module composable_token::composable_token {
     }
 
     #[resource_group_member(group = aptos_framework::object::ObjectGroup)]
-    // Storage state for digital assets
+    /// Storage state for digital assets
     struct DA has key {
         parent: Option<address>, // address of parent token if equipped
         index: u64, // index of the da in the digital_assets vector from composable_token or traits
@@ -127,8 +127,7 @@ module composable_token::composable_token {
     // Events
     // ------
 
-    // Collection related
-
+    /// Collection related
     struct CollectionMetadata has drop, store {
         creator: address,
         collection_addr: address,
@@ -767,7 +766,7 @@ module composable_token::composable_token {
     // Internal Functions
     // ------------------
 
-    // create royalty; used when creating a collection or a token
+    /// create royalty; used when creating a collection or a token
     inline fun create_royalty_internal(
         royalty_numerator: Option<u64>,
         royalty_denominator: Option<u64>,
@@ -782,7 +781,7 @@ module composable_token::composable_token {
             option::some<royalty::Royalty>(royalty_resource)
         } else { option::none<royalty::Royalty>() }
     }
-    // setup collection; internal function used when creating a collection
+    /// setup collection; internal function used when creating a collection
     inline fun collection_create_common(
         signer_ref: &signer,
         constructor_ref: &object::ConstructorRef,
@@ -821,7 +820,7 @@ module composable_token::composable_token {
         move_to(&obj_signer, Collection { name, symbol, supply_type });
     }
 
-    // create a collection internal
+    /// create a collection internal
     inline fun create_collection_internal<SupplyType: key>(
         signer_ref: &signer,
         description: String,
@@ -889,9 +888,9 @@ module composable_token::composable_token {
         constructor_ref
     }
 
-    // Create a collection;
-    // this will create a collection resource, a collection object,
-    // and returns the constructor reference of the collection.
+    /// Create a collection;
+    /// this will create a collection resource, a collection object,
+    /// and returns the constructor reference of the collection.
     public fun create_collection<SupplyType: key>(
         signer_ref: &signer,
         description: String,
@@ -945,7 +944,7 @@ module composable_token::composable_token {
         constructor_ref
     }
 
-    // create token internal
+    /// create token internal
     inline fun create_token_internal<Type: key, NamingStyle: key>(
         signer_ref: &signer,
         collection: Object<Collection>,
@@ -1007,7 +1006,7 @@ module composable_token::composable_token {
         };
     }
 
-    // create token commons
+    /// create token commons
     inline fun token_create_common<Type>(constructor_ref: &object::ConstructorRef) {
         // Create token refs
         token_components::create_refs(constructor_ref);
@@ -1039,11 +1038,11 @@ module composable_token::composable_token {
         } else { abort EUNKNOWN_TOKEN_TYPE };
     }
 
-    // setup token; internal function used when creating a token
+    /// setup token; internal function used when creating a token
 
-    // Create a token based on type. Either a trait or a composable;
-    // this will create a token resource, a token object,
-    // and returns the constructor reference of the token.
+    /// Create a token based on type. Either a trait or a composable;
+    /// this will create a token resource, a token object,
+    /// and returns the constructor reference of the token.
     public fun create_token<Type: key, NamingStyle: key>(
         signer_ref: &signer,
         collection: Object<Collection>,
@@ -1087,7 +1086,7 @@ module composable_token::composable_token {
         constructor_ref
     }
 
-    // Update parent of a token; used when equipping or unequipping a token
+    /// Update parent of a token; used when equipping or unequipping a token
     inline fun update_parent<Parent: key, Child: key, Process: key>(
         signer_ref: &signer,
         parent_obj: Object<Parent>,
@@ -1196,7 +1195,7 @@ module composable_token::composable_token {
         );
     }
 
-    // Compose a digital asset to a trait
+    /// Compose a digital asset to a trait
     public fun equip_digital_asset_to_trait(
         signer_ref: &signer,
         trait_object: Object<Trait>,
@@ -1222,7 +1221,7 @@ module composable_token::composable_token {
         );
     }
 
-    // Decompose a digital asset from a composable
+    /// Decompose a digital asset from a composable
     public fun unequip_digital_asset_from_composable(
         signer_ref: &signer,
         composable_object: Object<Composable>,
@@ -1250,7 +1249,7 @@ module composable_token::composable_token {
         );
     }
 
-    // Decompose a digital asset from a trait
+    /// Decompose a digital asset from a trait
     public fun unequip_digital_asset_from_trait(
         signer_ref: &signer,
         trait_object: Object<Trait>,
@@ -1303,7 +1302,7 @@ module composable_token::composable_token {
         } else { abort EUNKNOWN_TOKEN_TYPE };
     }
 
-    // equip fa; transfer fa to a token; token can be either composable or trait
+    /// equip fa; transfer fa to a token; token can be either composable or trait
     public fun equip_fa_to_token<FA: key, Token: key>(
         signer_ref: &signer,
         fa: Object<FA>,
@@ -1328,7 +1327,7 @@ module composable_token::composable_token {
         );
     }
 
-    // unequip fa; transfer fa from a token to the owner
+    /// unequip fa; transfer fa from a token to the owner
     public fun unequip_fa_from_token<FA: key, Token: key>(
         signer_ref: &signer,
         fa: Object<FA>,
@@ -1352,7 +1351,7 @@ module composable_token::composable_token {
         );
     }
 
-    // Decompose a trait from a composable token.
+    /// Decompose a trait from a composable token.
     public fun unequip_trait(
         signer_ref: &signer,
         composable_object: Object<Composable>,
@@ -1378,7 +1377,7 @@ module composable_token::composable_token {
         );
     }
 
-    // transfer digital assets; from user to user.
+    /// transfer digital assets; from user to user.
     public fun transfer_token<Token: key>(
         signer_ref: &signer,
         token: Object<Token>,
@@ -1405,7 +1404,7 @@ module composable_token::composable_token {
         );
     }
 
-    // transfer fa from user to user.
+    /// transfer fa from user to user.
     public fun transfer_fa<FA: key>(
         signer_ref: &signer,
         recipient: address,
@@ -1427,42 +1426,7 @@ module composable_token::composable_token {
     // Accessors
     // ---------
 
-    inline fun collection_object(creator: &signer, name: &String): Object<Collection> {
-        let collection_addr = collection::create_collection_address(&signer::address_of(creator), name);
-        object::address_to_object<Collection>(collection_addr)
-    }
-
-    inline fun borrow_collection<T: key>(token: &Object<T>): &Collection {
-        let collection_address = object::object_address(token);
-        assert!(
-            exists<Collection>(collection_address),
-            error::not_found(ECOLLECTION_DOES_NOT_EXIST),
-        );
-        borrow_global<Collection>(collection_address)
-    }
-
-    inline fun borrow_composable<T: key>(token: &Object<T>): &Composable {
-        let token_addr = object::object_address(token);
-        assert!(
-            exists<Composable>(token_addr),
-            error::not_found(ECOMPOSABLE_DOES_NOT_EXIST),
-        );
-        borrow_global<Composable>(token_addr)
-    }
-
-    inline fun borrow_trait<T: key>(token: &Object<T>): &Trait {
-        let token_addr = object::object_address(token);
-        assert!(
-            exists<Trait>(token_addr),
-            error::not_found(ETRAIT_DOES_NOT_EXIST),
-        );
-        borrow_global<Trait>(token_addr)
-    }
-
-    inline fun borrow_mut_traits(composable_address: address): vector<Object<Trait>> acquires Composable {
-        borrow_global_mut<Composable>(composable_address).traits
-    }
-
+    /// Helper function to set collection properties
     inline fun set_collection_properties(
         creator: &signer,
         collection: Object<CollectionV2>,
@@ -1488,24 +1452,28 @@ module composable_token::composable_token {
     }
 
     #[view]
+    /// Returns the name of the collection
     public fun collection_name(collection_object: Object<Collection>): String acquires Collection {
         let object_address = object::object_address(&collection_object);
         borrow_global<Collection>(object_address).name
     }
 
     #[view]
+    /// Returns the symbol of the collection
     public fun collection_symbol(collection_object: Object<Collection>): String acquires Collection {
         let object_address = object::object_address(&collection_object);
         borrow_global<Collection>(object_address).symbol
     }
 
     #[view]
+    /// Returns the supply type of the collection
     public fun collection_supply_type(collection_object: Object<Collection>): String acquires Collection {
         let object_address = object::object_address(&collection_object);
         borrow_global<Collection>(object_address).supply_type
     }
 
     #[view]
+    /// Returns the description of the collection
     public fun parent_token<T: key>(token: Object<T>): address acquires Trait, DA {
         let obj_addr = object::object_address(&token);
         if (type_info::type_of<T>() == type_info::type_of<Trait>()) {
@@ -1518,6 +1486,7 @@ module composable_token::composable_token {
     }
 
     #[view]
+    /// Returns the index of the token
     public fun index<T: key>(token_obj: Object<T>): u64 acquires Trait, DA {
         let obj_addr = object::object_address(&token_obj);
         if (type_info::type_of<T>() == type_info::type_of<Trait>()) {
@@ -1528,6 +1497,7 @@ module composable_token::composable_token {
     }
 
     #[view]
+    /// Returns the uri of the token
     public fun traits_from_composable(composable_object: Object<Composable>): vector<Object<Trait>> acquires Composable {
         let object_address = object::object_address(&composable_object);
         borrow_global<Composable>(object_address).traits
@@ -1567,20 +1537,6 @@ module composable_token::composable_token {
         borrow_global_mut<Composable>(token_addr)
     }
 
-    inline fun authorized_trait_borrow<T: key>(token: &Object<T>, owner: &signer): &Trait {
-        let token_addr = object::object_address(token);
-        assert!(
-            exists<Trait>(token_addr),
-            error::not_found(ETRAIT_DOES_NOT_EXIST),
-        );
-
-        assert!(
-            object::is_owner(token::collection_object(*token), signer::address_of(owner)),
-            error::permission_denied(ENOT_OWNER),
-        );
-        borrow_global<Trait>(token_addr)
-    }
-
     inline fun authorized_trait_mut_borrow<T: key>(token: &Object<T>, owner: &signer): &mut Trait {
         let token_addr = object::object_address(token);
         assert!(
@@ -1593,20 +1549,6 @@ module composable_token::composable_token {
             error::permission_denied(ENOT_OWNER),
         );
         borrow_global_mut<Trait>(token_addr)
-    }
-
-    inline fun authorized_da_borrow<T: key>(token: &Object<T>, owner: &signer): &DA {
-        let token_addr = object::object_address(token);
-        assert!(
-            exists<DA>(token_addr),
-            error::not_found(EDA_DOES_NOT_EXIST),
-        );
-
-        assert!(
-            object::is_owner(token::collection_object(*token), signer::address_of(owner)),
-            error::permission_denied(ENOT_OWNER),
-        );
-        borrow_global<DA>(token_addr)
     }
 
     inline fun authorized_da_mut_borrow<T: key>(token: &Object<T>, owner: &signer): &mut DA {
