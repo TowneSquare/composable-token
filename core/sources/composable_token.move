@@ -60,8 +60,8 @@ module composable_token::composable_token {
     const ECOMPOSABLE_DOES_NOT_EXIST: u64 = 4;
     /// The trait token does not exist.
     const ETRAIT_DOES_NOT_EXIST: u64 = 5;
-    /// The creator is not the signer.
-    const ENOT_CREATOR: u64 = 6;
+    /// The signer is not the collection owner
+    const ENOT_COLLECTION_OWNER: u64 = 6;
     /// The field is not mutable.
     const EFIELD_NOT_MUTABLE: u64 = 7;
     /// The properties are not mutable.
@@ -98,7 +98,8 @@ module composable_token::composable_token {
     /// Storage state for composable_token; aka, the atom/primary of the token
     struct Composable has key {
         traits: vector<Object<Trait>>,
-        digital_assets: vector<Object<DA>>
+        digital_assets: vector<Object<DA>>,
+        mutator_ref: token::MutatorRef
     }
 
     #[resource_group_member(group = aptos_framework::object::ObjectGroup)]
@@ -106,7 +107,9 @@ module composable_token::composable_token {
     struct Trait has key {
         parent: Option<address>, // address of parent token if equipped
         index: u64, // index of the trait in the traits vector from composable_token
-        digital_assets: vector<Object<DA>> // digital assets that the trait holds
+        digital_assets: vector<Object<DA>>, // digital assets that the trait holds
+        mutator_ref: token::MutatorRef,
+        transfer_ref: object::TransferRef
     }
 
     #[resource_group_member(group = aptos_framework::object::ObjectGroup)]
@@ -114,6 +117,7 @@ module composable_token::composable_token {
     struct DA has key {
         parent: Option<address>, // address of parent token if equipped
         index: u64, // index of the da in the digital_assets vector from composable_token or traits
+        transfer_ref: object::TransferRef
     }
 
     // Used to determine the naming style of the token
@@ -795,8 +799,8 @@ module composable_token::composable_token {
         mutable_token_name: bool,
         mutable_token_properties: bool,
         mutable_token_uri: bool,
-        tokens_burnable_by_creator: bool,
-        tokens_freezable_by_creator: bool,
+        tokens_burnable_by_collection_owner: bool,
+        tokens_freezable_by_collection_owner: bool,
         mutable_royalty: bool
     ) {
         collection_components::create_refs_and_properties(constructor_ref);
@@ -811,8 +815,8 @@ module composable_token::composable_token {
             mutable_token_properties,
             mutable_token_uri,
             mutable_royalty,
-            tokens_burnable_by_creator,
-            tokens_freezable_by_creator
+            tokens_burnable_by_collection_owner,
+            tokens_freezable_by_collection_owner
         );
 
         // move the collection resource to the object
@@ -836,8 +840,8 @@ module composable_token::composable_token {
         mutable_token_name: bool,
         mutable_token_properties: bool,
         mutable_token_uri: bool,
-        tokens_burnable_by_creator: bool,
-        tokens_freezable_by_creator: bool,
+        tokens_burnable_by_collection_owner: bool,
+        tokens_freezable_by_collection_owner: bool,
         royalty: Option<royalty::Royalty>
     ): object::ConstructorRef {
         let supply_type = type_info::type_name<SupplyType>();
@@ -881,8 +885,8 @@ module composable_token::composable_token {
             mutable_token_name,
             mutable_token_properties,
             mutable_token_uri,
-            tokens_burnable_by_creator,
-            tokens_freezable_by_creator,
+            tokens_burnable_by_collection_owner,
+            tokens_freezable_by_collection_owner,
             mutable_royalty
         );
 
@@ -906,8 +910,8 @@ module composable_token::composable_token {
         mutable_token_name: bool,
         mutable_token_properties: bool,
         mutable_token_uri: bool,
-        tokens_burnable_by_creator: bool,
-        tokens_freezable_by_creator: bool,
+        tokens_burnable_by_collection_owner: bool,
+        tokens_freezable_by_collection_owner: bool,
         royalty_numerator: Option<u64>,
         royalty_denominator: Option<u64>
         // TODO: add payee address option that if it is ignored then the payee addr will be the signer.
@@ -929,8 +933,8 @@ module composable_token::composable_token {
             mutable_token_name,
             mutable_token_properties,
             mutable_token_uri,
-            tokens_burnable_by_creator,
-            tokens_freezable_by_creator,
+            tokens_burnable_by_collection_owner,
+            tokens_freezable_by_collection_owner,
             royalty
         );
 
@@ -1011,8 +1015,9 @@ module composable_token::composable_token {
     inline fun token_create_common<Type>(constructor_ref: &object::ConstructorRef) {
         // Create token refs
         token_components::create_refs(constructor_ref);
-
         let obj_signer = object::generate_signer(constructor_ref);
+        let mutator_ref = token::generate_mutator_ref(constructor_ref);
+        let transfer_ref = object::generate_transfer_ref(constructor_ref);
         // if type is composable
         if (type_info::type_of<Type>() == type_info::type_of<Composable>()) {
             let traits = vector::empty();
@@ -1020,21 +1025,21 @@ module composable_token::composable_token {
             // create the composable resource
             move_to(
                 &obj_signer,
-                Composable { traits, digital_assets }
+                Composable { traits, digital_assets, mutator_ref }
             );
         } else if (type_info::type_of<Type>() == type_info::type_of<Trait>()) {
             let index = 0;
             // create the trait resource
             move_to(
                 &obj_signer,
-                Trait { parent: option::none(), index, digital_assets: vector::empty() }
+                Trait { parent: option::none(), index, digital_assets: vector::empty(), mutator_ref, transfer_ref }
             );
         } else if (type_info::type_of<Type>() == type_info::type_of<DA>()) {
             let index = 0;
             // create the trait resource
             move_to(
                 &obj_signer,
-                DA { parent: option::none(), index }
+                DA { parent: option::none(), index, transfer_ref }
             );
         } else { abort EUNKNOWN_TOKEN_TYPE };
     }
@@ -1097,18 +1102,18 @@ module composable_token::composable_token {
 
         if (type_info::type_of<Process>() == type_info::type_of<Equip>()) {
             if (type_info::type_of<Child>() == type_info::type_of<Trait>()) {
-                let child = authorized_trait_mut_borrow(&child_obj, signer_ref);
+                let child = authorized_trait_mut_borrow(&object::convert<Child, Trait>(child_obj), signer_ref);
                 child.parent = option::some(parent_addr);
             } else if (type_info::type_of<Child>() == type_info::type_of<DA>()) {
-                let child = authorized_da_mut_borrow(&child_obj, signer_ref);
+                let child = authorized_da_mut_borrow(&object::convert<Child, DA>(child_obj), signer_ref);
                 child.parent = option::some(parent_addr);
             } else { abort EUNKNOWN_TOKEN_TYPE };
         } else if (type_info::type_of<Process>() == type_info::type_of<Unequip>()) {
             if (type_info::type_of<Child>() == type_info::type_of<Trait>()) {
-                let child = authorized_trait_mut_borrow(&child_obj, signer_ref);
+                let child = authorized_trait_mut_borrow(&object::convert<Child, Trait>(child_obj), signer_ref);
                 child.parent = option::none();
             } else if (type_info::type_of<Child>() == type_info::type_of<DA>()) {
-                let child = authorized_da_mut_borrow(&child_obj, signer_ref);
+                let child = authorized_da_mut_borrow(&object::convert<Child, DA>(child_obj), signer_ref);
                 child.parent = option::none();
             } else { abort EUNKNOWN_TOKEN_TYPE };
         } else { abort EUNKNOWN_PROCESS_TYPE };
@@ -1128,10 +1133,9 @@ module composable_token::composable_token {
         // Update parent
         update_parent<Composable, Trait, Equip>(signer_ref, composable_object, trait_object);
         // Transfer object as collection owner
-        let composable_addr = object::object_address(&composable_object);
-        token_components::transfer_as_collection_owner(signer_ref, object::convert(trait_object), composable_addr);
+        object::transfer_to_object(signer_ref, trait_object, composable_object);
         // Disable ungated transfer for trait object
-        token_components::freeze_transfer(signer_ref, object::convert(trait_object));
+        freeze_transfer<Trait>(signer_ref, object::convert(trait_object));
         // Update the composable uri
         update_uri(signer_ref, composable_object, new_uri);
         // emit event
@@ -1159,10 +1163,9 @@ module composable_token::composable_token {
             // Update parent
             update_parent<Composable, Trait, Equip>(signer_ref, composable_object, trait_object);
             // Transfer object as collection owner
-            let composable_addr = object::object_address(&composable_object);
-            token_components::transfer_as_collection_owner(signer_ref, object::convert(trait_object), composable_addr);
+            object::transfer_to_object(signer_ref, trait_object, composable_object);
             // Disable ungated transfer for trait object
-            token_components::freeze_transfer(signer_ref, object::convert(trait_object));
+            freeze_transfer<Trait>(signer_ref, object::convert(trait_object));
         };
         // Update the composable uri
         update_uri(signer_ref, composable_object, new_uri);
@@ -1184,7 +1187,7 @@ module composable_token::composable_token {
         // Transfer
         object::transfer_to_object(signer_ref, da_object, composable_object);
         // Disable ungated transfer for digital asset object
-        token_components::freeze_transfer(signer_ref, object::convert(da_object));
+        freeze_transfer<DA>(signer_ref, object::convert(da_object));
         // Update the composable uri
         update_uri<Composable>(signer_ref, composable_object, new_uri);
         // emit event
@@ -1202,7 +1205,7 @@ module composable_token::composable_token {
         trait_object: Object<Trait>,
         da_object: Object<DA>,
         new_uri: String
-    ) acquires Trait, DA {
+    ) acquires Composable, Trait, DA {
         // Assert ungated transfer enabled for the object token.
         assert!(object::ungated_transfer_allowed(da_object), EUNGATED_TRANSFER_DISABLED);
         // Add the object to the end of the vector
@@ -1210,7 +1213,7 @@ module composable_token::composable_token {
         // Transfer
         object::transfer_to_object(signer_ref, da_object, trait_object);
         // Disable ungated transfer for trait object
-        token_components::freeze_transfer(signer_ref, object::convert(trait_object));
+        freeze_transfer<DA>(signer_ref, object::convert(trait_object));
         // Update the trait uri
         update_uri<Trait>(signer_ref, trait_object, new_uri);
         // emit event
@@ -1232,7 +1235,7 @@ module composable_token::composable_token {
         let (da_exists, index) = vector::index_of(&mut authorized_composable_mut_borrow(&composable_object, signer_ref).digital_assets, &da_object);
         assert!(da_exists == true, EDA_DOES_NOT_EXIST);
         // Enable ungated transfer for digital asset object
-        token_components::unfreeze_transfer(signer_ref, object::convert(da_object));
+        unfreeze_transfer<DA>(signer_ref, object::convert(da_object));
         // Transfer trait object to owner
         object::transfer(signer_ref, da_object, signer::address_of(signer_ref));
         // Remove the object from the vector
@@ -1256,11 +1259,11 @@ module composable_token::composable_token {
         trait_object: Object<Trait>,
         da_object: Object<DA>,
         new_uri: String
-    ) acquires Trait, DA {
+    ) acquires Composable, Trait, DA {
         let (da_exists, index) = vector::index_of(&mut authorized_trait_mut_borrow(&trait_object, signer_ref).digital_assets, &da_object);
         assert!(da_exists, EDA_DOES_NOT_EXIST);
         // Enable ungated transfer for trait object
-        token_components::unfreeze_transfer(signer_ref, object::convert(trait_object));
+        unfreeze_transfer<DA>(signer_ref, object::convert(trait_object));
         // Transfer digital asset object to owner
         object::transfer(signer_ref, da_object, signer::address_of(signer_ref));
         // Remove the object from the vector
@@ -1284,9 +1287,9 @@ module composable_token::composable_token {
         new_uri: String
     ) {
         let old_uri = token::uri<T>(token_obj);
-        token_components::set_uri(owner, object::convert(token_obj), new_uri);
-
         if (type_info::type_of<T>() == type_info::type_of<Composable>()) {
+            let token_res = borrow_global<Composable>(object::object_address(&token_obj));
+            token::set_uri(&token_res.mutator_ref, new_uri);
             emit_token_uri_updated_event(
                 object::object_address(&token_obj),
                 type_info::type_name<Composable>(),
@@ -1294,6 +1297,8 @@ module composable_token::composable_token {
                 new_uri
             );
         } else if (type_info::type_of<T>() == type_info::type_of<Trait>()) {
+            let token_res = borrow_global<Trait>(object::object_address(&token_obj));
+            token::set_uri(&token_res.mutator_ref, new_uri);
             emit_token_uri_updated_event(
                 object::object_address(&token_obj),
                 type_info::type_name<Trait>(),
@@ -1358,7 +1363,7 @@ module composable_token::composable_token {
         composable_object: Object<Composable>,
         trait_object: Object<Trait>,
         new_uri: String
-    ) acquires Composable{
+    ) acquires Composable, Trait{
         let (trait_exists, index) = vector::index_of(&mut authorized_composable_mut_borrow(&composable_object, signer_ref).traits, &trait_object);
         assert!(trait_exists, ETRAIT_DOES_NOT_EXIST);
         // Enable ungated transfer for trait object
@@ -1438,8 +1443,8 @@ module composable_token::composable_token {
         mutable_token_properties: bool,
         mutable_token_uri: bool,
         mutable_royalty: bool,
-        tokens_burnable_by_creator: bool,
-        tokens_freezable_by_creator: bool,
+        tokens_burnable_by_collection_owner: bool,
+        tokens_freezable_by_collection_owner: bool,
     ) {
         collection_properties::set_mutable_description(creator, collection, mutable_description);
         collection_properties::set_mutable_uri(creator, collection, mutable_uri);
@@ -1448,8 +1453,30 @@ module composable_token::composable_token {
         collection_properties::set_mutable_token_properties(creator, collection, mutable_token_properties);
         collection_properties::set_mutable_token_uri(creator, collection, mutable_token_uri);
         collection_properties::set_mutable_royalty(creator, collection, mutable_royalty);
-        collection_properties::set_tokens_burnable_by_collection_owner(creator, collection, tokens_burnable_by_creator);
-        collection_properties::set_tokens_transferable_by_collection_owner(creator, collection, tokens_freezable_by_creator);
+        collection_properties::set_tokens_burnable_by_collection_owner(creator, collection, tokens_burnable_by_collection_owner);
+        collection_properties::set_tokens_transferable_by_collection_owner(creator, collection, tokens_freezable_by_collection_owner);
+    }
+
+    /// Helper function to freeze transfer for a trait or DA token.
+    inline fun freeze_transfer_internal<T: key>(owner: &signer, token_obj: Object<T>) acquires Trait, DA {
+        if (type_info::type_of<T>() == type_info::type_of<Trait>()) {
+            let trait_res = borrow_global<Trait>(object::object_address(&token_obj));
+            object::disable_ungated_transfer(&trait_res.transfer_ref);
+        } else if (type_info::type_of<T>() == type_info::type_of<DA>()) {
+            let da_res = borrow_global<DA>(object::object_address(&token_obj));
+            object::disable_ungated_transfer(&da_res.transfer_ref);
+        } else { abort EUNKNOWN_TOKEN_TYPE }
+    }
+
+    /// Helper function to unfreeze transfer for a trait or DA token.
+    inline fun unfreeze_transfer_internal<T: key>(owner: &signer, token_obj: Object<T>) acquires Trait, DA {
+        if (type_info::type_of<T>() == type_info::type_of<Trait>()) {
+            let trait_res = borrow_global<Trait>(object::object_address(&token_obj));
+            object::enable_ungated_transfer(&trait_res.transfer_ref);
+        } else if (type_info::type_of<T>() == type_info::type_of<DA>()) {
+            let da_res = borrow_global<DA>(object::object_address(&token_obj));
+            object::enable_ungated_transfer(&da_res.transfer_ref);
+        } else { abort EUNKNOWN_TOKEN_TYPE }
     }
 
     #[view]
@@ -1537,7 +1564,7 @@ module composable_token::composable_token {
 
     /// Asserts the signer is the owner of the token's collection.
     /// Returns the `Composable` reference
-    inline fun authorized_composable_borrow<T: key>(token: &Object<T>, owner: &signer): &Composable {
+    inline fun authorized_composable_borrow(token: &Object<Composable>, owner: &signer): &Composable {
         let token_addr = object::object_address(token);
         assert!(
             exists<Composable>(token_addr),
@@ -1546,50 +1573,41 @@ module composable_token::composable_token {
 
         assert!(
             object::is_owner(token::collection_object(*token), signer::address_of(owner)),
-            error::permission_denied(ENOT_CREATOR),
+            error::permission_denied(ENOT_COLLECTION_OWNER),
         );
         borrow_global<Composable>(token_addr)
     }
 
-    inline fun authorized_composable_mut_borrow<T: key>(token: &Object<T>, owner: &signer): &mut Composable {
+    inline fun authorized_composable_mut_borrow(token: &Object<Composable>, owner: &signer): &mut Composable {
+        assert!(object::is_owner<Composable>(*token, signer::address_of(owner)), ENOT_OWNER);
         let token_addr = object::object_address(token);
         assert!(
             exists<Composable>(token_addr),
             error::not_found(ECOMPOSABLE_DOES_NOT_EXIST),
         );
 
-        assert!(
-            object::is_owner(token::collection_object(*token), signer::address_of(owner)),
-            error::permission_denied(ENOT_OWNER),
-        );
         borrow_global_mut<Composable>(token_addr)
     }
 
-    inline fun authorized_trait_mut_borrow<T: key>(token: &Object<T>, owner: &signer): &mut Trait {
+    inline fun authorized_trait_mut_borrow(token: &Object<Trait>, owner: &signer): &mut Trait {
+        assert!(object::is_owner<Trait>(*token, signer::address_of(owner)), ENOT_OWNER);
         let token_addr = object::object_address(token);
         assert!(
             exists<Trait>(token_addr),
             error::not_found(ETRAIT_DOES_NOT_EXIST),
         );
 
-        assert!(
-            object::is_owner(token::collection_object(*token), signer::address_of(owner)),
-            error::permission_denied(ENOT_OWNER),
-        );
         borrow_global_mut<Trait>(token_addr)
     }
 
-    inline fun authorized_da_mut_borrow<T: key>(token: &Object<T>, owner: &signer): &mut DA {
+    inline fun authorized_da_mut_borrow(token: &Object<DA>, owner: &signer): &mut DA {
+        assert!(object::is_owner<DA>(*token, signer::address_of(owner)), ENOT_OWNER);
         let token_addr = object::object_address(token);
         assert!(
             exists<DA>(token_addr),
             error::not_found(EDA_DOES_NOT_EXIST),
         );
 
-        assert!(
-            object::is_owner(token::collection_object(*token), signer::address_of(owner)),
-            error::permission_denied(ENOT_OWNER),
-        );
         borrow_global_mut<DA>(token_addr)
     }
 
@@ -1600,26 +1618,27 @@ module composable_token::composable_token {
         let token_object = object::convert(token);
 
         if (type_info::type_of<Type>() == type_info::type_of<Composable>()) {
-            let _composable = authorized_composable_borrow(&token, owner);
+            let composable = object::convert<Type, Composable>(token);
+            let _composable = authorized_composable_borrow(&composable, owner);
             assert!(
                 exists<Composable>(token_addr),
                 error::not_found(ECOMPOSABLE_DOES_NOT_EXIST),
             );
-            let Composable { traits: _, digital_assets: _ } = move_from<Composable>(token_addr);
+            let Composable { traits: _, digital_assets: _, mutator_ref: _ } = move_from<Composable>(token_addr);
             emit_token_burned_event(token_addr, type_info::type_name<Composable>());
         } else if (type_info::type_of<Type>() == type_info::type_of<Trait>()) {
             assert!(
                 exists<Trait>(token_addr),
                 error::not_found(ETRAIT_DOES_NOT_EXIST),
             );
-            let Trait { parent: _, index: _, digital_assets: _ } = move_from<Trait>(token_addr);
+            let Trait { parent: _, index: _, digital_assets: _, mutator_ref: _, transfer_ref: _ } = move_from<Trait>(token_addr);
             emit_token_burned_event(token_addr, type_info::type_name<Trait>());
         } else if (type_info::type_of<Type>() == type_info::type_of<DA>()) {
             assert!(
                 exists<DA>(token_addr),
                 error::not_found(EDA_DOES_NOT_EXIST),
             );
-            let DA { parent: _, index: _ } = move_from<DA>(token_addr);
+            let DA { parent: _, index: _, transfer_ref: _ } = move_from<DA>(token_addr);
             emit_token_burned_event(token_addr, type_info::type_name<DA>());
         } else { abort EUNKNOWN_TOKEN_TYPE };
 
@@ -1628,8 +1647,8 @@ module composable_token::composable_token {
     }
 
     // freeze token based on type
-    public fun freeze_transfer<T: key>(creator: &signer, token: Object<T>) {
-        token_components::freeze_transfer(creator, object::convert(token));
+    public fun freeze_transfer<T: key>(creator: &signer, token: Object<T>) acquires Trait, DA {
+        freeze_transfer_internal<T>(creator, token);
 
         if (type_info::type_of<T>() == type_info::type_of<Composable>()) {
             emit_transfer_frozen_event(object::object_address(&token), type_info::type_name<Composable>());
@@ -1642,8 +1661,8 @@ module composable_token::composable_token {
     }
 
     // unfreeze token based on type
-    public fun unfreeze_transfer<T: key>(creator: &signer, token: Object<T>) {
-        token_components::unfreeze_transfer(creator, object::convert(token));
+    public fun unfreeze_transfer<T: key>(creator: &signer, token: Object<T>) acquires Trait, DA {
+        unfreeze_transfer_internal<T>(creator, token);
 
         if (type_info::type_of<T>() == type_info::type_of<Composable>()) {
             emit_transfer_unfrozen_event(object::object_address(&token), type_info::type_name<Composable>());

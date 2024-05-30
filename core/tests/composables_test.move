@@ -13,6 +13,8 @@ module composable_token::composable_token_test {
     use composable_token::composable_token::{Self, Collection, Composable, Trait};
     use composable_token::test_utils;
 
+    use minter::migration_helper;
+
     const COLLECTION_1_NAME: vector<u8> = b"Collection 1";
     const COLLECTION_2_NAME: vector<u8> = b"Collection 2";
 
@@ -190,6 +192,8 @@ module composable_token::composable_token_test {
             option::some(100)
         );
         let collection_obj = object::object_from_constructor_ref(&collection_constructor_ref);
+        debug::print<address>(&object::address_from_constructor_ref(&collection_constructor_ref));
+        debug::print<address>(&migration_helper::migration_object_address());
         let composable_constructor_ref = test_utils::create_named_composable_token_helper(
             alice,
             collection_obj,
@@ -207,7 +211,7 @@ module composable_token::composable_token_test {
         // get types of the objects
         let composable_addr = object::object_address<Composable>(&composable_obj);
         let trait_addr = object::object_address<Trait>(&trait_obj);
-        debug::print<SimpleMap<address, String>>(&composable_token::object_types(vector[composable_addr, trait_addr]));
+        // debug::print<SimpleMap<address, String>>(&composable_token::object_types(vector[composable_addr, trait_addr]));
         // transfer trait and composable to bob
         composable_token::transfer_token<Composable>(alice, composable_obj, signer::address_of(bob));
         composable_token::transfer_token<Trait>(alice, trait_obj, signer::address_of(bob));
