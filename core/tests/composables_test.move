@@ -189,7 +189,6 @@ module composable_token::composable_token_test {
             option::some(100)
         );
         let collection_obj = object::object_from_constructor_ref(&collection_constructor_ref);
-        
         let composable_constructor_ref = test_utils::create_named_composable_token_helper(
             alice,
             collection_obj,
@@ -204,24 +203,27 @@ module composable_token::composable_token_test {
         );
         let trait_obj = object::object_from_constructor_ref(&trait_constructor_ref);
 
-        // transfer composable to bob
+        // transfer trait and composable to bob
         composable_token::transfer_token<Composable>(alice, composable_obj, signer::address_of(bob));
-        // TODO: check that transfer is successful
-        // TODO: check events are emited correctly
-
-        // transfer trait to bob
         composable_token::transfer_token<Trait>(alice, trait_obj, signer::address_of(bob));
 
-        // TODO: check that transfer is successful
+        // check that transfer is successful
+        let bob_address = signer::address_of(bob);
+        assert!(object::is_owner<Composable>(composable_obj, bob_address), 1);
+        assert!(object::is_owner<Trait>(trait_obj, bob_address), 1);
         // TODO: check events are emited correctly
         
-        // bob equip trait to composable - bob cannot do this as alice is the creator of the token's collection
+        // bob equip trait to composable - only bob can do this as he is the owner of both tokens
         let uri_after_equipping_trait = string::utf8(b"URI after equipping trait");
 
-        // alice can only call equip_trait, as alice is the creator of the token's collection
-        composable_token::equip_trait(alice, composable_obj, trait_obj, uri_after_equipping_trait);
+        // only bob can call equip_trait, as bob is the current owner of both tokens
+        debug::print<address>(&object::owner<Composable>(composable_obj));
+        debug::print<address>(&object::owner<Trait>(trait_obj));
+        debug::print<address>(&object::owner<Collection>(collection_obj));
+
+        composable_token::equip_trait(bob, composable_obj, trait_obj, uri_after_equipping_trait);
         // TODO: check that the trait is equipped correctly
-        // TODO: check events are emited correctly
+        // TODO: assert uri is updated correctly
     }
 
     #[test(std = @0x1, alice = @0x123, bob = @0x456)]

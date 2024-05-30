@@ -22,7 +22,6 @@ module composable_token::test_utils {
     use std::type_info;
     use std::vector;
     use composable_token::composable_token::{Self, Collection, Composable, Trait, Named, Indexed};
-    use std::features;
 
     // collection 
     const COLLECTION_DESCRIPTION: vector<u8> =  b"Collection of Hack Singapore 2023 NFTs";

@@ -37,7 +37,7 @@ module composable_token::composable_token {
     use std::error;
     use std::option::{Self, Option};
     use std::signer;
-    use std::string::String;
+    use std::string::{Self, String};
     use std::vector;
     use minter::token_components;
     use minter::collection_components;
@@ -435,7 +435,7 @@ module composable_token::composable_token {
     struct ComposableCreatedEvent has drop, store { metadata: ComposableMetadata }
     fun emit_composable_created_event(composable_object: Object<Composable>) {
         let metadata = composable_metadata(composable_object);
-        ComposableCreatedEvent { metadata };
+        event::emit<ComposableCreatedEvent>( ComposableCreatedEvent { metadata });
     }
 
     // Trait
@@ -1501,6 +1501,32 @@ module composable_token::composable_token {
     public fun traits_from_composable(composable_object: Object<Composable>): vector<Object<Trait>> acquires Composable {
         let object_address = object::object_address(&composable_object);
         borrow_global<Composable>(object_address).traits
+    }
+
+    #[view]
+    /// Gets an object address and returns the resource name stored within
+    public fun object_type(obj_addr: address): Option<String> {
+        if (exists<Collection>(obj_addr)) {
+            option::some(string::utf8(b"Collection"))
+        } else if (exists<Composable>(obj_addr)) {
+            option::some(string::utf8(b"Composable"))
+        } else if (exists<Trait>(obj_addr)) {
+            option::some(string::utf8(b"Trait"))
+        } else if (exists<DA>(obj_addr)) {
+            option::some(string::utf8(b"DA"))
+        } else {
+            option::some(string::utf8(b"none"))
+        }
+    }
+
+    #[view]
+    /// Gets a list of object addresses and returns the resource name stored within
+    public fun object_types(obj_addrs: vector<address>): vector<Option<String>> {
+        let types = vector::empty<Option<String>>();
+        for (i in 0..vector::length(&obj_addrs)) {
+            vector::push_back<Option<String>>(&mut types, object_type(*vector::borrow(&obj_addrs, i)));
+        };
+        types
     }
 
     // --------
