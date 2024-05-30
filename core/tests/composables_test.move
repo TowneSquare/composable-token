@@ -4,10 +4,11 @@ module composable_token::composable_token_test {
     use aptos_framework::account;
     use aptos_framework::object;
     use aptos_std::debug;
+    use aptos_std::simple_map::SimpleMap;
     use aptos_token_objects::collection::{FixedSupply, UnlimitedSupply};
     use std::option;
     use std::signer;
-    use std::string;
+    use std::string::{Self, String};
 
     use composable_token::composable_token::{Self, Collection, Composable, Trait};
     use composable_token::test_utils;
@@ -203,6 +204,10 @@ module composable_token::composable_token_test {
         );
         let trait_obj = object::object_from_constructor_ref(&trait_constructor_ref);
 
+        // get types of the objects
+        let composable_addr = object::object_address<Composable>(&composable_obj);
+        let trait_addr = object::object_address<Trait>(&trait_obj);
+        debug::print<SimpleMap<address, String>>(&composable_token::object_types(vector[composable_addr, trait_addr]));
         // transfer trait and composable to bob
         composable_token::transfer_token<Composable>(alice, composable_obj, signer::address_of(bob));
         composable_token::transfer_token<Trait>(alice, trait_obj, signer::address_of(bob));

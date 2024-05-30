@@ -11,7 +11,7 @@
         - Trait token: A token V2 that represents a trait.
         - Composable token (cNFT): A token V2 that can hold Trait tokens.
     TODOs:
-        - improve error handling: should implement assert functions to eliminate redundancy.
+        - !!!improve error handling: should implement assert functions to eliminate redundancy.
         - Organize the functions based on alphabetical order.
         - when creating token common, check if vectors are not empty, if so, add the vectors instead of creating empty ones.
         - tokens uri mutability is valid when tokens does not have children (aka list of tokens is empty).
@@ -27,6 +27,7 @@ module composable_token::composable_token {
     use aptos_framework::object::{Self, Object};
     use aptos_framework::primary_fungible_store;
 
+    use aptos_std::simple_map::{Self, SimpleMap};
     use aptos_std::type_info;
 
     use aptos_token_objects::collection::{Self, Collection as CollectionV2};
@@ -1505,28 +1506,29 @@ module composable_token::composable_token {
 
     #[view]
     /// Gets an object address and returns the resource name stored within
-    public fun object_type(obj_addr: address): Option<String> {
+    public fun object_type(obj_addr: address): String {
         if (exists<Collection>(obj_addr)) {
-            option::some(string::utf8(b"Collection"))
+            string::utf8(b"Collection")
         } else if (exists<Composable>(obj_addr)) {
-            option::some(string::utf8(b"Composable"))
+            string::utf8(b"Composable")
         } else if (exists<Trait>(obj_addr)) {
-            option::some(string::utf8(b"Trait"))
+            string::utf8(b"Trait")
         } else if (exists<DA>(obj_addr)) {
-            option::some(string::utf8(b"DA"))
+            string::utf8(b"DA")
         } else {
-            option::some(string::utf8(b"none"))
+            string::utf8(b"none")
         }
     }
 
     #[view]
     /// Gets a list of object addresses and returns the resource name stored within
-    public fun object_types(obj_addrs: vector<address>): vector<Option<String>> {
-        let types = vector::empty<Option<String>>();
+    public fun object_types(obj_addrs: vector<address>): SimpleMap<address, String> {
+        let types = vector::empty<String>();
         for (i in 0..vector::length(&obj_addrs)) {
-            vector::push_back<Option<String>>(&mut types, object_type(*vector::borrow(&obj_addrs, i)));
+            vector::push_back<String>(&mut types, object_type(*vector::borrow(&obj_addrs, i)));
         };
-        types
+
+        simple_map::new_from<address, String>(obj_addrs, types)
     }
 
     // --------
