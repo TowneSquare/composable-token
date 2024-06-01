@@ -6,6 +6,7 @@ module composable_token::composable_token_test {
     use aptos_std::debug;
     use aptos_std::simple_map::SimpleMap;
     use aptos_token_objects::collection::{FixedSupply, UnlimitedSupply};
+    use aptos_token_objects::token;
     use std::option;
     use std::signer;
     use std::string::{Self, String};
@@ -201,38 +202,73 @@ module composable_token::composable_token_test {
         );
         let composable_obj = object::object_from_constructor_ref(&composable_constructor_ref);
 
-        let trait_constructor_ref = test_utils::create_named_trait_token_helper(
+        let trait1_constructor_ref = test_utils::create_named_trait_token_helper(
             alice,
             collection_obj,
             TRAIT_1_NAME
         );
-        let trait_obj = object::object_from_constructor_ref(&trait_constructor_ref);
+        let trait2_constructor_ref = test_utils::create_named_trait_token_helper(
+            alice,
+            collection_obj,
+            TRAIT_2_NAME
+        );
+
+        let trait1_obj = object::object_from_constructor_ref(&trait1_constructor_ref);
+        let trait2_obj = object::object_from_constructor_ref(&trait2_constructor_ref);
 
         // get types of the objects
         let composable_addr = object::object_address<Composable>(&composable_obj);
-        let trait_addr = object::object_address<Trait>(&trait_obj);
+        let trait1_addr = object::object_address<Trait>(&trait1_obj);
+        let trait2_addr = object::object_address<Trait>(&trait2_obj);
         // debug::print<SimpleMap<address, String>>(&composable_token::object_types(vector[composable_addr, trait_addr]));
         // transfer trait and composable to bob
         composable_token::transfer_token<Composable>(alice, composable_obj, signer::address_of(bob));
-        composable_token::transfer_token<Trait>(alice, trait_obj, signer::address_of(bob));
+        composable_token::transfer_token<Trait>(alice, trait1_obj, signer::address_of(bob));
+        composable_token::transfer_token<Trait>(alice, trait2_obj, signer::address_of(bob));
 
         // check that transfer is successful
         let bob_address = signer::address_of(bob);
         assert!(object::is_owner<Composable>(composable_obj, bob_address), 1);
-        assert!(object::is_owner<Trait>(trait_obj, bob_address), 1);
+        assert!(object::is_owner<Trait>(trait1_obj, bob_address), 1);
+        assert!(object::is_owner<Trait>(trait2_obj, bob_address), 1);
         // TODO: check events are emited correctly
         
         // bob equip trait to composable - only bob can do this as he is the owner of both tokens
-        let uri_after_equipping_trait = string::utf8(b"URI after equipping trait");
+        let uri_after_equipping_trait = string::utf8(b"URI after equipping the traits");
 
-        // only bob can call equip_trait, as bob is the current owner of both tokens
-        debug::print<address>(&object::owner<Composable>(composable_obj));
-        debug::print<address>(&object::owner<Trait>(trait_obj));
-        debug::print<address>(&object::owner<Collection>(collection_obj));
+        // only bob can call equip_traits, as bob is the current owner of both tokens
+        // debug::print<address>(&object::owner<Composable>(composable_obj));
+        // debug::print<address>(&object::owner<Trait>(trait_obj));
+        // debug::print<address>(&object::owner<Collection>(collection_obj));
 
-        composable_token::equip_trait(bob, composable_obj, trait_obj, uri_after_equipping_trait);
-        // TODO: check that the trait is equipped correctly
-        // TODO: assert uri is updated correctly
+        composable_token::equip_traits(
+            bob, 
+            composable_obj, 
+            vector[trait1_obj, trait2_obj], 
+            uri_after_equipping_trait
+        );
+        // check that the trait is equipped correctly
+        debug::print<object::Object<Trait>>(&trait1_obj);
+        debug::print<object::Object<Trait>>(&trait2_obj);
+        let traits_in_composable = composable_token::traits_from_composable(composable_obj);
+        debug::print<vector<object::Object<Trait>>>(&traits_in_composable);
+        // assert uri is updated correctly
+        debug::print<String>(&token::uri(composable_obj));
+
+        // unequip traits
+        let uri_after_unequipping_trait = string::utf8(b"URI after unequipping the traits");
+        composable_token::unequip_traits(
+            bob, 
+            composable_obj, 
+            vector[trait1_obj, trait2_obj], 
+            uri_after_unequipping_trait
+        );
+
+        // check that the trait is unequipped correctly
+        let traits_in_composable = composable_token::traits_from_composable(composable_obj);
+        debug::print<vector<object::Object<Trait>>>(&traits_in_composable);
+        // assert uri is updated correctly
+        debug::print<String>(&token::uri(composable_obj));
     }
 
     #[test(std = @0x1, alice = @0x123, bob = @0x456)]

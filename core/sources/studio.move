@@ -551,22 +551,6 @@ module composable_token::studio {
         composable_token::burn_token<T>(signer_ref, token_obj);
     }
 
-    // Freeze a token
-    public entry fun freeze_transfer<T: key>(
-        signer_ref: &signer,
-        token_obj: Object<T>
-    ) {
-        composable_token::freeze_transfer<T>(signer_ref, token_obj);
-    }
-
-    // Unfreeze a token
-    public entry fun unfreeze_transfer<T: key>(
-        signer_ref: &signer,
-        token_obj: Object<T>
-    ) {
-        composable_token::unfreeze_transfer<T>(signer_ref, token_obj);
-    }
-
     // Equip trait to a composable
     public entry fun equip_trait(
         owner: &signer,
