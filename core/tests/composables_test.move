@@ -24,6 +24,7 @@ module composable_token::composable_token_test {
 
     const TRAIT_1_NAME: vector<u8> = b"Trait 1";
     const TRAIT_2_NAME: vector<u8> = b"Trait 2";
+    const TRAIT_3_NAME: vector<u8> = b"Trait 3";
 
     #[test(std = @0x1, creator = @0x123)]
     // create a collection with unlimited supply
@@ -213,8 +214,15 @@ module composable_token::composable_token_test {
             TRAIT_2_NAME
         );
 
+        let trait3_constructor_ref = test_utils::create_named_trait_token_helper(
+            alice,
+            collection_obj,
+            TRAIT_3_NAME
+        );
+
         let trait1_obj = object::object_from_constructor_ref(&trait1_constructor_ref);
         let trait2_obj = object::object_from_constructor_ref(&trait2_constructor_ref);
+        let trait3_obj = object::object_from_constructor_ref(&trait3_constructor_ref);
 
         // get types of the objects
         let composable_addr = object::object_address<Composable>(&composable_obj);
@@ -270,7 +278,7 @@ module composable_token::composable_token_test {
         // assert uri is updated correctly
         debug::print<String>(&token::uri(composable_obj));
         // print parent of the traits
-        debug::print<SimpleMap<address, address>>(&composable_token::parents_tokens<Trait>(vector[trait1_obj, trait2_obj]));
+        debug::print<SimpleMap<address, option::Option<address>>>(&composable_token::parents<Trait>(vector[trait1_obj, trait2_obj, trait3_obj]));
     }
 
     #[test(std = @0x1, alice = @0x123, bob = @0x456)]

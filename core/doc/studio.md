@@ -7,6 +7,7 @@
 
 -  [Struct `CollectionCreatedEvent`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_studio_CollectionCreatedEvent)
 -  [Struct `TokenCreatedEvent`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_studio_TokenCreatedEvent)
+-  [Constants](#@Constants_0)
 -  [Function `create_collection_with_fixed_supply_and_royalty`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_studio_create_collection_with_fixed_supply_and_royalty)
 -  [Function `create_collection_with_fixed_supply_and_no_royalty`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_studio_create_collection_with_fixed_supply_and_no_royalty)
 -  [Function `create_collection_with_unlimited_supply_and_royalty`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_studio_create_collection_with_unlimited_supply_and_royalty)
@@ -27,6 +28,7 @@
 -  [Function `unequip_traits`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_studio_unequip_traits)
 -  [Function `unequip_fungible_asset`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_studio_unequip_fungible_asset)
 -  [Function `decompose_entire_composable_token`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_studio_decompose_entire_composable_token)
+-  [Function `replace_traits_of_composable`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_studio_replace_traits_of_composable)
 -  [Function `transfer_digital_asset`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_studio_transfer_digital_asset)
 -  [Function `transfer_fungible_asset`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_studio_transfer_fungible_asset)
 -  [Function `set_token_name`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_studio_set_token_name)
@@ -41,6 +43,7 @@
 <pre><code><b>use</b> <a href="">0x1::event</a>;
 <b>use</b> <a href="">0x1::object</a>;
 <b>use</b> <a href="">0x1::option</a>;
+<b>use</b> <a href="">0x1::signer</a>;
 <b>use</b> <a href="">0x1::string</a>;
 <b>use</b> <a href="">0x4::collection</a>;
 <b>use</b> <a href="composable_token.md#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token">0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6::composable_token</a>;
@@ -68,6 +71,31 @@
 
 <pre><code>#[<a href="">event</a>]
 <b>struct</b> <a href="studio.md#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_studio_TokenCreatedEvent">TokenCreatedEvent</a>&lt;T&gt; <b>has</b> drop, store
+</code></pre>
+
+
+
+<a id="@Constants_0"></a>
+
+## Constants
+
+
+<a id="0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_studio_ENOT_OWNER"></a>
+
+The signer is not the owner of the object
+
+
+<pre><code><b>const</b> <a href="studio.md#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_studio_ENOT_OWNER">ENOT_OWNER</a>: u64 = 1;
+</code></pre>
+
+
+
+<a id="0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_studio_ETOKEN_NOT_EQUIPPED"></a>
+
+The token is not equipped
+
+
+<pre><code><b>const</b> <a href="studio.md#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_studio_ETOKEN_NOT_EQUIPPED">ETOKEN_NOT_EQUIPPED</a>: u64 = 2;
 </code></pre>
 
 
@@ -309,6 +337,19 @@ TODO: should be tested
 
 
 <pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_studio_decompose_entire_composable_token">decompose_entire_composable_token</a>(owner: &<a href="">signer</a>, composable_obj: <a href="_Object">object::Object</a>&lt;<a href="composable_token.md#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_Composable">composable_token::Composable</a>&gt;, new_uri: <a href="_String">string::String</a>)
+</code></pre>
+
+
+
+<a id="0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_studio_replace_traits_of_composable"></a>
+
+## Function `replace_traits_of_composable`
+
+Replace traits of a composable token
+This function will replace the selected traits from the composable token with the input traits.
+
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="studio.md#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_studio_replace_traits_of_composable">replace_traits_of_composable</a>(owner: &<a href="">signer</a>, composable_obj: <a href="_Object">object::Object</a>&lt;<a href="composable_token.md#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_Composable">composable_token::Composable</a>&gt;, traits_to_remove: <a href="">vector</a>&lt;<a href="_Object">object::Object</a>&lt;<a href="composable_token.md#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_Trait">composable_token::Trait</a>&gt;&gt;, traits_to_add: <a href="">vector</a>&lt;<a href="_Object">object::Object</a>&lt;<a href="composable_token.md#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_Trait">composable_token::Trait</a>&gt;&gt;, new_uri: <a href="_String">string::String</a>)
 </code></pre>
 
 

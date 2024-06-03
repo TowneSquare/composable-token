@@ -1463,6 +1463,22 @@ module composable_token::composable_token {
         collection_properties::set_tokens_transferable_by_collection_owner(creator, collection, tokens_freezable_by_collection_owner);
     }
 
+    /// Helper function to see if a token has a parent token or not.
+    inline fun has_parent<T: key>(token_obj: Object<T>): (bool, Option<address>) acquires Trait, DA {
+        let obj_addr = object::object_address(&token_obj);
+        if (type_info::type_of<T>() == type_info::type_of<Trait>()) {
+            let trait_res = borrow_global<Trait>(obj_addr);
+            if (option::is_some(&trait_res.parent)) {
+                (true, trait_res.parent)
+            } else { (false, option::none()) }
+        } else if (type_info::type_of<T>() == type_info::type_of<DA>()) {
+            let da_res = borrow_global<DA>(obj_addr);
+            if (option::is_some(&da_res.parent)) {
+                (true, da_res.parent)
+            } else { (false, option::none()) }
+        } else { abort EUNKNOWN_TOKEN_TYPE }
+    }
+
     /// Helper function to freeze transfer for a trait or DA token.
     inline fun freeze_transfer_internal<T: key>(token_obj: Object<T>) acquires Trait, DA {
         if (type_info::type_of<T>() == type_info::type_of<Trait>()) {
@@ -1519,19 +1535,36 @@ module composable_token::composable_token {
         } else { abort EUNKNOWN_TOKEN_TYPE }
     }
 
+    // TODO: remove before mainnet deployment
+    #[deprecated]
+    /// Expects all the input traits to have parents
     #[view]
-    /// Returns a list of parent tokens of the input tokens
+    /// Returns a table with input tokens as keys and their parent tokens as values
+    /// if the token has no parent, the value will be None
     /// NOTE: Type T must be the same for all tokens in the input vector
     public fun parents_tokens<T: key>(tokens: vector<Object<T>>): SimpleMap<address, address> acquires Trait, DA {
         let parents = simple_map::new<address, address>();
         for (i in 0..vector::length(&tokens)) {
             let token = *vector::borrow(&tokens, i);
             let parent = parent_token(token);
-            simple_map::add<address, address>(&mut parents, object::object_address(&token), parent);
+            simple_map::add(&mut parents, object::object_address(&token), parent);
         };
         parents
     }
-    
+
+    #[view]
+    /// Returns a table with input tokens as keys and their parent tokens as values
+    /// if the token has no parent, the value will be None
+    /// NOTE: Type T must be the same for all tokens in the input vector
+    public fun parents<T: key>(tokens: vector<Object<T>>): SimpleMap<address, Option<address>> acquires Trait, DA {
+        let parents = simple_map::new<address, Option<address>>();
+        for (i in 0..vector::length(&tokens)) {
+            let token = *vector::borrow(&tokens, i);
+            let (_, parent) = has_parent<T>(token);
+            simple_map::add<address, Option<address>>(&mut parents, object::object_address(&token), parent);
+        };
+        parents
+    }
 
     #[view]
     /// Returns the index of the token
