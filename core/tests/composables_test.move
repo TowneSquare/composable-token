@@ -228,6 +228,7 @@ module composable_token::composable_token_test {
         let composable_addr = object::object_address<Composable>(&composable_obj);
         let trait1_addr = object::object_address<Trait>(&trait1_obj);
         let trait2_addr = object::object_address<Trait>(&trait2_obj);
+        let trait3_addr = object::object_address<Trait>(&trait3_obj);
         // debug::print<SimpleMap<address, String>>(&composable_token::object_types(vector[composable_addr, trait_addr]));
         // transfer trait and composable to bob
         composable_token::transfer_token<Composable>(alice, composable_obj, signer::address_of(bob));
@@ -278,7 +279,7 @@ module composable_token::composable_token_test {
         // assert uri is updated correctly
         debug::print<String>(&token::uri(composable_obj));
         // print parent of the traits
-        debug::print<SimpleMap<address, option::Option<address>>>(&composable_token::parents<Trait>(vector[trait1_obj, trait2_obj, trait3_obj]));
+        debug::print<SimpleMap<address, option::Option<address>>>(&composable_token::parents_by_address<Trait>(vector[trait1_addr, trait2_addr, trait3_addr]));
     }
 
     #[test(std = @0x1, alice = @0x123, bob = @0x456)]

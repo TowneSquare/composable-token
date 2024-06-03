@@ -1567,6 +1567,21 @@ module composable_token::composable_token {
     }
 
     #[view]
+    /// Returns a table with input tokens addresses as keys and their parent tokens as values
+    /// if the token has no parent, the value will be None
+    /// NOTE: Type T must be the same for all tokens in the input vector
+    public fun parents_by_address<T: key>(token_addrs: vector<address>): SimpleMap<address, Option<address>> acquires Trait, DA {
+        let parents = simple_map::new<address, Option<address>>();
+        for (i in 0..vector::length(&token_addrs)) {
+            let token_addr = *vector::borrow(&token_addrs, i);
+            let token = object::address_to_object<T>(token_addr);
+            let (_, parent) = has_parent<T>(token);
+            simple_map::add<address, Option<address>>(&mut parents, token_addr, parent);
+        };
+        parents
+    }
+
+    #[view]
     /// Returns the index of the token
     public fun index<T: key>(token_obj: Object<T>): u64 acquires Trait, DA {
         let obj_addr = object::object_address(&token_obj);
