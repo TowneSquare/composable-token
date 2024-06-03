@@ -59,6 +59,7 @@
 -  [Function `collection_symbol`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_collection_symbol)
 -  [Function `collection_supply_type`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_collection_supply_type)
 -  [Function `parent_token`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_parent_token)
+-  [Function `parents_tokens`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_parents_tokens)
 -  [Function `index`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_index)
 -  [Function `traits_from_composable`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_traits_from_composable)
 -  [Function `object_type`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_object_type)
@@ -871,11 +872,25 @@ Returns the supply type of the collection
 
 ## Function `parent_token`
 
-Returns the description of the collection
+Returns the parent token of the input token
 
 
 <pre><code>#[view]
 <b>public</b> <b>fun</b> <a href="composable_token.md#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_parent_token">parent_token</a>&lt;T: key&gt;(<a href="">token</a>: <a href="_Object">object::Object</a>&lt;T&gt;): <b>address</b>
+</code></pre>
+
+
+
+<a id="0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_parents_tokens"></a>
+
+## Function `parents_tokens`
+
+Returns a list of parent tokens of the input tokens
+NOTE: Type T must be the same for all tokens in the input vector
+
+
+<pre><code>#[view]
+<b>public</b> <b>fun</b> <a href="composable_token.md#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_parents_tokens">parents_tokens</a>&lt;T: key&gt;(tokens: <a href="">vector</a>&lt;<a href="_Object">object::Object</a>&lt;T&gt;&gt;): <a href="_SimpleMap">simple_map::SimpleMap</a>&lt;<b>address</b>, <b>address</b>&gt;
 </code></pre>
 
 

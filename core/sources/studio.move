@@ -20,7 +20,6 @@ module composable_token::studio {
 
     use std::option;
     use std::string;
-    // use std::signer;
     use std::string::String;
     use std::vector;
 
@@ -68,7 +67,7 @@ module composable_token::studio {
     // Entry Functions
     // ---------------
     
-    // Create a new collection with fixed supply and royalty on
+    /// Create a new collection with fixed supply and royalty on
     public entry fun create_collection_with_fixed_supply_and_royalty(
         signer_ref: &signer,
         description: String,
@@ -117,8 +116,8 @@ module composable_token::studio {
         );
     }
 
-    // Create a new collection with fixed supply and royalty off.
-    // token uri mutibility is enforced to be true to allow composibility
+    /// Create a new collection with fixed supply and royalty off.
+    /// token uri mutibility is enforced to be true to allow composibility
     public entry fun create_collection_with_fixed_supply_and_no_royalty(
         signer_ref: &signer,
         description: String,
@@ -164,8 +163,8 @@ module composable_token::studio {
         );
     }
 
-    // Create a new collection with unlimited supply and royalty on.
-    // token uri mutibility is enforced to be true to allow composibility
+    /// Create a new collection with unlimited supply and royalty on.
+    /// token uri mutibility is enforced to be true to allow composibility
     public entry fun create_collection_with_unlimited_supply_and_royalty(
         signer_ref: &signer,
         description: String,
@@ -212,8 +211,8 @@ module composable_token::studio {
         );
     }
 
-    // Create a new collection with unlimited supply and royalty off.
-    // token uri mutibility is enforced to be true to allow composibility
+    /// Create a new collection with unlimited supply and royalty off.
+    /// token uri mutibility is enforced to be true to allow composibility
     public entry fun create_collection_with_unlimited_supply_and_no_royalty(
         signer_ref: &signer,
         description: String,
@@ -258,7 +257,7 @@ module composable_token::studio {
         );
     }
 
-    // Create a named composable token with no royalty
+    /// Create a named composable token with no royalty
     public entry fun create_named_composable_token_with_no_royalty(
         signer_ref: &signer,
         collection: Object<Collection>,
@@ -294,7 +293,7 @@ module composable_token::studio {
         );
     }
 
-    // Create a named composable token with royalty
+    /// Create a named composable token with royalty
     public entry fun create_named_composable_token_with_royalty(
         signer_ref: &signer,
         collection: Object<Collection>,
@@ -332,7 +331,7 @@ module composable_token::studio {
         );
     }
 
-    // Create an indexed composable token with royalty 
+    /// Create an indexed composable token with royalty 
     public entry fun create_indexed_composable_token_with_royalty(
         signer_ref: &signer,
         collection: Object<Collection>,
@@ -369,7 +368,7 @@ module composable_token::studio {
         );
     }
 
-    // Create an indexed composable token without royalty 
+    /// Create an indexed composable token without royalty 
     public entry fun create_indexed_composable_token_with_no_royalty(
         signer_ref: &signer,
         collection: Object<Collection>,
@@ -404,7 +403,7 @@ module composable_token::studio {
         );
     }
 
-    // Create a named trait token with no royalty
+    /// Create a named trait token with no royalty
     public entry fun create_named_trait_token_with_no_royalty(
         signer_ref: &signer,
         collection: Object<Collection>,
@@ -440,7 +439,7 @@ module composable_token::studio {
         );
     }
 
-    // Create a named trait token with royalty
+    /// Create a named trait token with royalty
     public entry fun create_named_trait_token_with_royalty(
         signer_ref: &signer,
         collection: Object<Collection>,
@@ -471,7 +470,7 @@ module composable_token::studio {
         object::object_from_constructor_ref<Trait>(&constructor_ref);
     }
 
-    // Create an indexed trait token with royalty
+    /// Create an indexed trait token with royalty
     public entry fun create_indexed_trait_token_with_royalty(
         signer_ref: &signer,
         collection: Object<Collection>,
@@ -508,7 +507,7 @@ module composable_token::studio {
         );
     }
 
-    // Create an indexed trait token with royalty off
+    /// Create an indexed trait token with royalty off
     public entry fun create_indexed_trait_token_with_no_royalty(
         signer_ref: &signer,
         collection: Object<Collection>,
@@ -543,7 +542,7 @@ module composable_token::studio {
         );
     }
 
-    // Burn a token
+    /// Burn a token
     public entry fun burn_token<T: key>(
         signer_ref: &signer,
         token_obj: Object<T>
@@ -551,7 +550,7 @@ module composable_token::studio {
         composable_token::burn_token<T>(signer_ref, token_obj);
     }
 
-    // Equip trait to a composable
+    /// Equip trait to a composable
     public entry fun equip_trait(
         owner: &signer,
         composable_obj: Object<Composable>,
@@ -559,6 +558,20 @@ module composable_token::studio {
         new_uri: String // User should not prompt this! It should be generated by the studio.
     ) { 
         composable_token::equip_trait(owner, composable_obj, trait_obj, new_uri);
+    }
+
+    /// Equip a list of traits to a composable
+    public entry fun equip_traits(
+        owner: &signer,
+        composable_obj: Object<Composable>,
+        traits: vector<Object<Trait>>,
+        new_uri: String // User should not prompt this! It should be generated by the studio.
+    ) {
+        for (i in 0..vector::length<Object<Trait>>(&traits)) {
+            let trait_obj = *vector::borrow(&traits, i);
+            composable_token::equip_trait(owner, composable_obj, trait_obj, new_uri);
+            i = i + 1;
+        };
     }
 
     // Equip fungible asset to a trait or composable
@@ -581,6 +594,20 @@ module composable_token::studio {
         composable_token::unequip_trait(owner, composable_obj, trait_obj, new_uri);
     }
 
+    /// Unequip a list of traits from a composable
+    public entry fun unequip_traits(
+        owner: &signer,
+        composable_obj: Object<Composable>,
+        traits: vector<Object<Trait>>,
+        new_uri: String // User should not prompt this! It should be generated by the studio.
+    ) {
+        for (i in 0..vector::length<Object<Trait>>(&traits)) {
+            let trait_obj = *vector::borrow(&traits, i);
+            composable_token::unequip_trait(owner, composable_obj, trait_obj, new_uri);
+            i = i + 1;
+        };
+    }
+
     // Unequip fungible asset from a trait or composable
     public entry fun unequip_fungible_asset<FA: key, TokenType: key>(
         signer_ref: &signer,
@@ -591,8 +618,8 @@ module composable_token::studio {
         composable_token::unequip_fa_from_token<FA, TokenType>(signer_ref, fa, token_obj, amount);
     }
 
-    // Decompose an entire composable token
-    // TODO: should be tested
+    /// Decompose an entire composable token
+    /// TODO: should be tested
     public entry fun decompose_entire_composable_token(
         owner: &signer,
         composable_obj: Object<Composable>,
@@ -607,7 +634,7 @@ module composable_token::studio {
         };
     }
 
-    // Directly transfer a token to a user.
+    /// Directly transfer a token to a user.
     public entry fun transfer_digital_asset<T: key>(
         owner: &signer, 
         token: Object<T>,
@@ -616,7 +643,7 @@ module composable_token::studio {
         composable_token::transfer_token(owner, token, new_owner_address);
     }
 
-    // Directly transfer a token to a user.
+    /// Directly transfer a token to a user.
     public entry fun transfer_fungible_asset<FA: key>(
         signer_ref: &signer,
         recipient: address,
@@ -630,7 +657,7 @@ module composable_token::studio {
     // Mutators
     // --------
 
-    // set token name
+    /// set token name
     public entry fun set_token_name<T: key>(
         signer_ref: &signer,
         token_obj: Object<T>,
@@ -639,7 +666,7 @@ module composable_token::studio {
         composable_token::set_name<T>(signer_ref, token_obj, new_name);
     }
 
-    // set token description
+    /// set token description
     public entry fun set_token_description<T: key>(
         signer_ref: &signer,
         token_obj: Object<T>,
@@ -648,7 +675,7 @@ module composable_token::studio {
         composable_token::set_description<T>(signer_ref, token_obj, new_description);
     }
 
-    // set trait token uri
+    /// set trait token uri
     public entry fun set_trait_token_uri(
         signer_ref: &signer,
         trait_obj: Object<Trait>,
@@ -657,7 +684,7 @@ module composable_token::studio {
         composable_token::set_trait_uri(signer_ref, trait_obj, new_uri);
     }
 
-    // add a property to a token
+    /// add a property to a token
     public entry fun add_property_to_token<T: key>(
         signer_ref: &signer,
         token_obj: Object<T>,
@@ -668,7 +695,7 @@ module composable_token::studio {
         composable_token::add_property<T>(signer_ref, token_obj, key, type, value);
     }
 
-    // add a typed property to a token
+    /// add a typed property to a token
     public entry fun add_typed_property_to_token<T: key, V: drop>(
         signer_ref: &signer,
         token_obj: Object<T>,
@@ -678,7 +705,7 @@ module composable_token::studio {
         composable_token::add_typed_property<T, V>(signer_ref, token_obj, key, value);
     }
 
-    // update a property from a token
+    /// update a property from a token
     public entry fun update_property_from_token<T: key>(
         signer_ref: &signer,
         token_obj: Object<T>,
@@ -688,7 +715,7 @@ module composable_token::studio {
         composable_token::update_property<T>(signer_ref, token_obj, key, value);
     }
 
-    // remove a property from a token
+    /// remove a property from a token
     public entry fun remove_property_from_token<T: key>(
         signer_ref: &signer,
         token_obj: Object<T>,

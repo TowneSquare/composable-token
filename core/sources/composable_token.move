@@ -1507,7 +1507,7 @@ module composable_token::composable_token {
     }
 
     #[view]
-    /// Returns the description of the collection
+    /// Returns the parent token of the input token
     public fun parent_token<T: key>(token: Object<T>): address acquires Trait, DA {
         let obj_addr = object::object_address(&token);
         if (type_info::type_of<T>() == type_info::type_of<Trait>()) {
@@ -1518,6 +1518,20 @@ module composable_token::composable_token {
             option::extract<address>(&mut parent)
         } else { abort EUNKNOWN_TOKEN_TYPE }
     }
+
+    #[view]
+    /// Returns a list of parent tokens of the input tokens
+    /// NOTE: Type T must be the same for all tokens in the input vector
+    public fun parents_tokens<T: key>(tokens: vector<Object<T>>): SimpleMap<address, address> acquires Trait, DA {
+        let parents = simple_map::new<address, address>();
+        for (i in 0..vector::length(&tokens)) {
+            let token = *vector::borrow(&tokens, i);
+            let parent = parent_token(token);
+            simple_map::add<address, address>(&mut parents, object::object_address(&token), parent);
+        };
+        parents
+    }
+    
 
     #[view]
     /// Returns the index of the token

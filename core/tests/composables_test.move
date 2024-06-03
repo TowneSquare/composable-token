@@ -269,6 +269,8 @@ module composable_token::composable_token_test {
         debug::print<vector<object::Object<Trait>>>(&traits_in_composable);
         // assert uri is updated correctly
         debug::print<String>(&token::uri(composable_obj));
+        // print parent of the traits
+        debug::print<SimpleMap<address, address>>(&composable_token::parents_tokens<Trait>(vector[trait1_obj, trait2_obj]));
     }
 
     #[test(std = @0x1, alice = @0x123, bob = @0x456)]
