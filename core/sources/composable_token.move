@@ -1363,6 +1363,8 @@ module composable_token::composable_token {
         object::transfer(signer_ref, trait_object, signer::address_of(signer_ref));
         // Remove the object from the vector
         vector::remove(&mut authorized_composable_mut_borrow(&composable_object, signer_ref).traits, index);
+        // Update parent
+        update_parent<Composable, Trait, Unequip>(signer_ref, composable_object, trait_object);
         // Update the composable uri
         update_uri(composable_object, new_uri);
         // emit event

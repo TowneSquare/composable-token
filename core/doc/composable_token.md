@@ -61,6 +61,7 @@
 -  [Function `parent_token`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_parent_token)
 -  [Function `parents_tokens`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_parents_tokens)
 -  [Function `parents`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_parents)
+-  [Function `parents_by_address`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_parents_by_address)
 -  [Function `index`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_index)
 -  [Function `traits_from_composable`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_traits_from_composable)
 -  [Function `object_type`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_object_type)
@@ -909,6 +910,21 @@ NOTE: Type T must be the same for all tokens in the input vector
 
 <pre><code>#[view]
 <b>public</b> <b>fun</b> <a href="composable_token.md#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_parents">parents</a>&lt;T: key&gt;(tokens: <a href="">vector</a>&lt;<a href="_Object">object::Object</a>&lt;T&gt;&gt;): <a href="_SimpleMap">simple_map::SimpleMap</a>&lt;<b>address</b>, <a href="_Option">option::Option</a>&lt;<b>address</b>&gt;&gt;
+</code></pre>
+
+
+
+<a id="0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_parents_by_address"></a>
+
+## Function `parents_by_address`
+
+Returns a table with input tokens addresses as keys and their parent tokens as values
+if the token has no parent, the value will be None
+NOTE: Type T must be the same for all tokens in the input vector
+
+
+<pre><code>#[view]
+<b>public</b> <b>fun</b> <a href="composable_token.md#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_parents_by_address">parents_by_address</a>&lt;T: key&gt;(token_addrs: <a href="">vector</a>&lt;<b>address</b>&gt;): <a href="_SimpleMap">simple_map::SimpleMap</a>&lt;<b>address</b>, <a href="_Option">option::Option</a>&lt;<b>address</b>&gt;&gt;
 </code></pre>
 
 
