@@ -11,7 +11,7 @@
         - remove redundant entry functions
 */
 
-module composable_token::studio {
+module composable_token::composable_token_entry {
 
     use aptos_framework::event;
     use aptos_framework::object::{Self, Object};
@@ -628,7 +628,6 @@ module composable_token::studio {
     }
 
     /// Decompose an entire composable token
-    /// TODO: should be tested
     public entry fun decompose_entire_composable_token(
         owner: &signer,
         composable_obj: Object<Composable>,

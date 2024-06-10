@@ -11,14 +11,10 @@
         - Trait token: A token V2 that represents a trait.
         - Composable token (cNFT): A token V2 that can hold Trait tokens.
     TODOs:
-        - !!!improve error handling: should implement assert functions to eliminate redundancy.
         - Organize the functions based on alphabetical order.
         - when creating token common, check if vectors are not empty, if so, add the vectors instead of creating empty ones.
         - tokens uri mutability is valid when tokens does not have children (aka list of tokens is empty).
         - changing the URI of Trait and DA will require us to update the URI of the parent token as well (from parent field) if exists.
-        - some functions can be generic.
-        - Fix typo in comment (create collection params).
-        - Work on rarities
 */
 
 module composable_token::composable_token {
@@ -26,16 +22,12 @@ module composable_token::composable_token {
     use aptos_framework::event;
     use aptos_framework::object::{Self, Object};
     use aptos_framework::primary_fungible_store;
-
     use aptos_std::simple_map::{Self, SimpleMap};
     use aptos_std::type_info;
-
     use aptos_token_objects::collection::{Self, Collection as CollectionV2};
     use aptos_token_objects::property_map;
     use aptos_token_objects::royalty;
     use aptos_token_objects::token;
-
-    use std::error;
     use std::option::{Self, Option};
     use std::signer;
     use std::string::{Self, String};
@@ -76,8 +68,8 @@ module composable_token::composable_token {
     const EDA_DOES_NOT_EXIST: u64 = 12;
     /// The process type is not recognised.
     const EUNKNOWN_PROCESS_TYPE: u64 = 13;
-
-    // TODO: add asserts functions here.
+    /// The token already has Composable, Trait, or DA resource.
+    const ETOKEN_HAS_RESOURCE: u64 = 14;
 
     // ---------
     // Resources
@@ -767,6 +759,10 @@ module composable_token::composable_token {
         event::emit<TransferUnfrozenEvent>( TransferUnfrozenEvent { token_addr, token_type });
     }
 
+    #[event]
+    /// Emitted when a digital asset is migrated to a composable token.
+    struct MigatedToComposableEvent has drop, store { token: address }
+
     // ------------------
     // Internal Functions
     // ------------------
@@ -820,7 +816,6 @@ module composable_token::composable_token {
         );
 
         // move the collection resource to the object
-        // TODO: should not be transferable, test it.
         let obj_signer = object::generate_signer(constructor_ref);
         move_to(&obj_signer, Collection { name, symbol, supply_type });
     }
@@ -914,9 +909,7 @@ module composable_token::composable_token {
         tokens_freezable_by_collection_owner: bool,
         royalty_numerator: Option<u64>,
         royalty_denominator: Option<u64>
-        // TODO: add payee address option that if it is ignored then the payee addr will be the signer.
     ): object::ConstructorRef acquires Collection {
-        // TODO: assert supply type is either fixed, unlimited, or concurrent.
         let signer_addr = signer::address_of(signer_ref);
         let royalty = create_royalty_internal(royalty_numerator, royalty_denominator, signer_addr);
         let constructor_ref = create_collection_internal<SupplyType>(
@@ -1063,7 +1056,6 @@ module composable_token::composable_token {
         property_types: vector<String>,
         property_values: vector<vector<u8>>
     ): object::ConstructorRef {
-        // TODO: assert Type is either trait or composable.
         let signer_addr = signer::address_of(signer_ref);
         let royalty = create_royalty_internal(royalty_numerator, royalty_denominator, signer_addr);
         let constructor_ref = create_token_internal<Type, NamingStyle>(
@@ -1537,23 +1529,6 @@ module composable_token::composable_token {
         } else { abort EUNKNOWN_TOKEN_TYPE }
     }
 
-    // TODO: remove before mainnet deployment
-    #[deprecated]
-    /// Expects all the input traits to have parents
-    #[view]
-    /// Returns a table with input tokens as keys and their parent tokens as values
-    /// if the token has no parent, the value will be None
-    /// NOTE: Type T must be the same for all tokens in the input vector
-    public fun parents_tokens<T: key>(tokens: vector<Object<T>>): SimpleMap<address, address> acquires Trait, DA {
-        let parents = simple_map::new<address, address>();
-        for (i in 0..vector::length(&tokens)) {
-            let token = *vector::borrow(&tokens, i);
-            let parent = parent_token(token);
-            simple_map::add(&mut parents, object::object_address(&token), parent);
-        };
-        parents
-    }
-
     #[view]
     /// Returns a table with input tokens as keys and their parent tokens as values
     /// if the token has no parent, the value will be None
@@ -1636,25 +1611,16 @@ module composable_token::composable_token {
     /// Returns the `Composable` reference
     inline fun authorized_composable_borrow(token: &Object<Composable>, owner: &signer): &Composable {
         let token_addr = object::object_address(token);
-        assert!(
-            exists<Composable>(token_addr),
-            error::not_found(ECOMPOSABLE_DOES_NOT_EXIST),
-        );
+        assert!(exists<Composable>(token_addr), ECOMPOSABLE_DOES_NOT_EXIST);
 
-        assert!(
-            object::is_owner(token::collection_object(*token), signer::address_of(owner)),
-            error::permission_denied(ENOT_COLLECTION_OWNER),
-        );
+        assert!(object::is_owner(token::collection_object(*token), signer::address_of(owner)), ENOT_COLLECTION_OWNER);
         borrow_global<Composable>(token_addr)
     }
 
     inline fun authorized_composable_mut_borrow(token: &Object<Composable>, owner: &signer): &mut Composable {
         assert!(object::is_owner<Composable>(*token, signer::address_of(owner)), ENOT_OWNER);
         let token_addr = object::object_address(token);
-        assert!(
-            exists<Composable>(token_addr),
-            error::not_found(ECOMPOSABLE_DOES_NOT_EXIST),
-        );
+        assert!(exists<Composable>(token_addr), ECOMPOSABLE_DOES_NOT_EXIST);
 
         borrow_global_mut<Composable>(token_addr)
     }
@@ -1662,10 +1628,7 @@ module composable_token::composable_token {
     inline fun authorized_trait_mut_borrow(token: &Object<Trait>, owner: &signer): &mut Trait {
         assert!(object::is_owner<Trait>(*token, signer::address_of(owner)), ENOT_OWNER);
         let token_addr = object::object_address(token);
-        assert!(
-            exists<Trait>(token_addr),
-            error::not_found(ETRAIT_DOES_NOT_EXIST),
-        );
+        assert!(exists<Trait>(token_addr), ETRAIT_DOES_NOT_EXIST);
 
         borrow_global_mut<Trait>(token_addr)
     }
@@ -1673,41 +1636,28 @@ module composable_token::composable_token {
     inline fun authorized_da_mut_borrow(token: &Object<DA>, owner: &signer): &mut DA {
         assert!(object::is_owner<DA>(*token, signer::address_of(owner)), ENOT_OWNER);
         let token_addr = object::object_address(token);
-        assert!(
-            exists<DA>(token_addr),
-            error::not_found(EDA_DOES_NOT_EXIST),
-        );
+        assert!(exists<DA>(token_addr), EDA_DOES_NOT_EXIST);
 
         borrow_global_mut<DA>(token_addr)
     }
 
     // owner burns token based on type
     public fun burn_token<Type: key>(owner: &signer, token: Object<Type>) acquires Composable, Trait, DA {
-        // TODO: assert is a composable, trait or DA
         let token_addr = object::object_address(&token);
         let token_object = object::convert(token);
 
         if (type_info::type_of<Type>() == type_info::type_of<Composable>()) {
             let composable = object::convert<Type, Composable>(token);
             let _composable = authorized_composable_borrow(&composable, owner);
-            assert!(
-                exists<Composable>(token_addr),
-                error::not_found(ECOMPOSABLE_DOES_NOT_EXIST),
-            );
+            assert!(exists<Composable>(token_addr), ECOMPOSABLE_DOES_NOT_EXIST);
             let Composable { traits: _, digital_assets: _, mutator_ref: _ } = move_from<Composable>(token_addr);
             emit_token_burned_event(token_addr, type_info::type_name<Composable>());
         } else if (type_info::type_of<Type>() == type_info::type_of<Trait>()) {
-            assert!(
-                exists<Trait>(token_addr),
-                error::not_found(ETRAIT_DOES_NOT_EXIST),
-            );
+            assert!(exists<Trait>(token_addr), ETRAIT_DOES_NOT_EXIST);
             let Trait { parent: _, index: _, digital_assets: _, mutator_ref: _, transfer_ref: _ } = move_from<Trait>(token_addr);
             emit_token_burned_event(token_addr, type_info::type_name<Trait>());
         } else if (type_info::type_of<Type>() == type_info::type_of<DA>()) {
-            assert!(
-                exists<DA>(token_addr),
-                error::not_found(EDA_DOES_NOT_EXIST),
-            );
+            assert!(exists<DA>(token_addr), EDA_DOES_NOT_EXIST );
             let DA { parent: _, index: _, transfer_ref: _ } = move_from<DA>(token_addr);
             emit_token_burned_event(token_addr, type_info::type_name<DA>());
         } else { abort EUNKNOWN_TOKEN_TYPE };
@@ -1818,7 +1768,6 @@ module composable_token::composable_token {
         uri: String,
     ) {
         // TODO: assert trait does not have DAs inside, otherwise, it is not possible to update the uri.
-        // TODO: is this needed
         let old_uri = token::uri(trait_obj);
         token_components::set_uri(owner, object::convert(trait_obj), uri);
         emit_token_uri_updated_event(
@@ -1927,7 +1876,7 @@ module composable_token::composable_token {
         } else { abort EUNKNOWN_TOKEN_TYPE }
     }
 
-    // update token properties
+    /// update token properties
     public fun update_property<T: key>(
         owner: &signer,
         token: Object<T>,
@@ -1962,5 +1911,35 @@ module composable_token::composable_token {
                 value,
             );
         } else { abort EUNKNOWN_TOKEN_TYPE }
+    }
+
+    /// Add a Composable wrapper to a digital asset
+    /// Used to make plain digital assets compatible with the hirearchical structure
+    public fun wrap_token_in_composable(
+        signer_ref: &signer,
+        token: Object<token::Token>,
+        object_signer_ref: &signer,
+        mutator_ref: token::MutatorRef,
+    ) {
+        assert!(object::is_owner<token::Token>(token, signer::address_of(signer_ref)), ENOT_OWNER);
+        let token_addr = object::object_address(&token);
+        // assert token does not have a DA, Trait or Composable resource
+        assert!(
+            !exists<DA>(token_addr) 
+            && !exists<Trait>(token_addr) 
+            && !exists<Composable>(token_addr),
+            ETOKEN_HAS_RESOURCE
+        );
+        // move a composable resource under the token address
+        move_to(
+            object_signer_ref, 
+            Composable {
+                traits: vector::empty(),
+                digital_assets: vector::empty(),
+                mutator_ref
+            },
+        );
+        // emit event
+        event::emit(MigatedToComposableEvent {token: token_addr});
     }
 }

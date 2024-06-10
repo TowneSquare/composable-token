@@ -40,6 +40,7 @@
 -  [Struct `FATransferredEvent`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_FATransferredEvent)
 -  [Struct `TransferFrozenEvent`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_TransferFrozenEvent)
 -  [Struct `TransferUnfrozenEvent`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_TransferUnfrozenEvent)
+-  [Struct `MigatedToComposableEvent`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_MigatedToComposableEvent)
 -  [Constants](#@Constants_0)
 -  [Function `create_collection`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_create_collection)
 -  [Function `create_token`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_create_token)
@@ -59,7 +60,6 @@
 -  [Function `collection_symbol`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_collection_symbol)
 -  [Function `collection_supply_type`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_collection_supply_type)
 -  [Function `parent_token`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_parent_token)
--  [Function `parents_tokens`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_parents_tokens)
 -  [Function `parents`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_parents)
 -  [Function `parents_by_address`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_parents_by_address)
 -  [Function `index`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_index)
@@ -74,10 +74,10 @@
 -  [Function `add_typed_property`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_add_typed_property)
 -  [Function `remove_property`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_remove_property)
 -  [Function `update_property`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_update_property)
+-  [Function `wrap_token_in_composable`](#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_wrap_token_in_composable)
 
 
-<pre><code><b>use</b> <a href="">0x1::error</a>;
-<b>use</b> <a href="">0x1::event</a>;
+<pre><code><b>use</b> <a href="">0x1::event</a>;
 <b>use</b> <a href="">0x1::object</a>;
 <b>use</b> <a href="">0x1::option</a>;
 <b>use</b> <a href="">0x1::primary_fungible_store</a>;
@@ -513,6 +513,19 @@ Collection related
 
 
 
+<a id="0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_MigatedToComposableEvent"></a>
+
+## Struct `MigatedToComposableEvent`
+
+Emitted when a digital asset is migrated to a composable token.
+
+
+<pre><code>#[<a href="">event</a>]
+<b>struct</b> <a href="composable_token.md#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_MigatedToComposableEvent">MigatedToComposableEvent</a> <b>has</b> drop, store
+</code></pre>
+
+
+
 <a id="@Constants_0"></a>
 
 ## Constants
@@ -594,6 +607,16 @@ The references does not exist.
 
 
 <pre><code><b>const</b> <a href="composable_token.md#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_EREFS_DOES_NOT_EXIST">EREFS_DOES_NOT_EXIST</a>: u64 = 11;
+</code></pre>
+
+
+
+<a id="0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_ETOKEN_HAS_RESOURCE"></a>
+
+The token already has Composable, Trait, or DA resource.
+
+
+<pre><code><b>const</b> <a href="composable_token.md#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_ETOKEN_HAS_RESOURCE">ETOKEN_HAS_RESOURCE</a>: u64 = 14;
 </code></pre>
 
 
@@ -883,22 +906,6 @@ Returns the parent token of the input token
 
 
 
-<a id="0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_parents_tokens"></a>
-
-## Function `parents_tokens`
-
-Returns a table with input tokens as keys and their parent tokens as values
-if the token has no parent, the value will be None
-NOTE: Type T must be the same for all tokens in the input vector
-
-
-<pre><code>#[view]
-#[deprecated]
-<b>public</b> <b>fun</b> <a href="composable_token.md#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_parents_tokens">parents_tokens</a>&lt;T: key&gt;(tokens: <a href="">vector</a>&lt;<a href="_Object">object::Object</a>&lt;T&gt;&gt;): <a href="_SimpleMap">simple_map::SimpleMap</a>&lt;<b>address</b>, <b>address</b>&gt;
-</code></pre>
-
-
-
 <a id="0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_parents"></a>
 
 ## Function `parents`
@@ -1065,7 +1072,21 @@ token_components asserts that the signer is the owner of the collection of the t
 
 ## Function `update_property`
 
+update token properties
 
 
 <pre><code><b>public</b> <b>fun</b> <a href="composable_token.md#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_update_property">update_property</a>&lt;T: key&gt;(owner: &<a href="">signer</a>, <a href="">token</a>: <a href="_Object">object::Object</a>&lt;T&gt;, key: <a href="_String">string::String</a>, value: <a href="">vector</a>&lt;u8&gt;)
+</code></pre>
+
+
+
+<a id="0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_wrap_token_in_composable"></a>
+
+## Function `wrap_token_in_composable`
+
+Add a Composable wrapper to a digital asset
+Used to make plain digital assets compatible with the hirearchical structure
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="composable_token.md#0x69ef0832ab2fba22869ad8c174f5a8872d3d2f16b941bf7a36916c00f7f8c6c6_composable_token_wrap_token_in_composable">wrap_token_in_composable</a>(signer_ref: &<a href="">signer</a>, <a href="">token</a>: <a href="_Object">object::Object</a>&lt;<a href="_Token">token::Token</a>&gt;, object_signer_ref: &<a href="">signer</a>, mutator_ref: <a href="_MutatorRef">token::MutatorRef</a>)
 </code></pre>
