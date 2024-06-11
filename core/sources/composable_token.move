@@ -148,7 +148,7 @@ module composable_token::composable_token {
     }
 
     inline fun collection_metadata(
-        collection_object: Object<Collection>,
+        collection_object: Object<collection::Collection>,
         max_supply: Option<u64>,
         royalty_numerator: Option<u64>,
         royalty_denominator: Option<u64>
@@ -196,7 +196,7 @@ module composable_token::composable_token {
     #[event]
     struct CollectionCreatedEvent has drop, store { metadata: CollectionMetadata }
     fun emit_collection_created_event<SupplyType: key>(
-        collection_object: Object<Collection>,
+        collection_object: Object<collection::Collection>,
         max_supply: Option<u64>,
         royalty_numerator: Option<u64>,
         royalty_denominator: Option<u64>
@@ -1504,14 +1504,14 @@ module composable_token::composable_token {
 
     #[view]
     /// Returns the symbol of the collection
-    public fun collection_symbol(collection_object: Object<Collection>): String acquires Collection {
+    public fun collection_symbol(collection_object: Object<collection::Collection>): String acquires Collection {
         let object_address = object::object_address(&collection_object);
         borrow_global<Collection>(object_address).symbol
     }
 
     #[view]
     /// Returns the supply type of the collection
-    public fun collection_supply_type(collection_object: Object<Collection>): String acquires Collection {
+    public fun collection_supply_type(collection_object: Object<collection::Collection>): String acquires Collection {
         let object_address = object::object_address(&collection_object);
         borrow_global<Collection>(object_address).supply_type
     }
