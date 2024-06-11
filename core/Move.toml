@@ -4,7 +4,7 @@ version = "0.2.0"
 authors = ["lay (Aladeen)"]
 
 [addresses]
-composable_token = "0x556e298b24616f84ef8dc09c632a201140cfe576c666cd226ca2526e586b290e"
+composable_token = "_"
 # TODO: remove before deploying
 contract_obj = "0x1337"
 

@@ -28,13 +28,14 @@ module composable_token::composable_token {
     use aptos_token_objects::property_map;
     use aptos_token_objects::royalty;
     use aptos_token_objects::token;
+    use minter::collection_components;
+    use minter::collection_properties;
+    use minter::token_components;
+    use minter::transfer_token;
     use std::option::{Self, Option};
     use std::signer;
     use std::string::{Self, String};
     use std::vector;
-    use minter::token_components;
-    use minter::collection_components;
-    use minter::collection_properties;
 
     // -------
     // Asserts
@@ -1139,6 +1140,35 @@ module composable_token::composable_token {
         );
     }
 
+    /// Compose a trait to a composable and make it soulbound
+    public fun equip_soulbound_trait(
+        signer_ref: &signer,
+        composable_object: Object<Composable>,
+        trait_constructor_ref: &object::ConstructorRef,
+        new_uri: String
+    ) acquires Composable, Trait, DA {
+        let trait_object = object::object_from_constructor_ref(trait_constructor_ref);
+        // Assert ungated transfer enabled for the object token.
+        assert!(object::ungated_transfer_allowed(trait_object), EUNGATED_TRANSFER_DISABLED);
+        // Add the object to the end of the vector
+        vector::push_back<Object<Trait>>(&mut authorized_composable_mut_borrow(&composable_object, signer_ref).traits, trait_object);
+        // Update parent
+        update_parent<Composable, Trait, Equip>(signer_ref, composable_object, trait_object);
+        // Transfer object as collection owner
+        object::transfer_to_object(signer_ref, trait_object, composable_object);
+        // Transfer the trait, making it soulbound to the composable
+        transfer_token::transfer_soulbound(object::object_address(&composable_object), trait_constructor_ref);
+        // Update the composable uri
+        update_uri(composable_object, new_uri);
+        // emit event
+        emit_trait_equipped_event(
+            composable_object,
+            trait_object,
+            index<Trait>(trait_object),
+            token::uri<Trait>(trait_object)
+        );
+    }
+
     /// Compose multiple traits to a composable token
     public fun equip_traits(
         signer_ref: &signer,
@@ -1150,6 +1180,22 @@ module composable_token::composable_token {
             // Assert ungated transfer enabled for the object token.
             let trait_object = *vector::borrow(&trait_objects, i);
             equip_trait(signer_ref, composable_object, trait_object, new_uri);
+        };
+        // Update the composable uri
+        update_uri(composable_object, new_uri);
+    }
+
+    /// Compose multiple traits to a composable token and make them soulbound
+    public fun equip_soulbound_traits(
+        signer_ref: &signer,
+        composable_object: Object<Composable>,
+        traits_constructors: vector<object::ConstructorRef>,
+        new_uri: String
+    ) acquires Composable, Trait, DA {
+        for (i in 0..vector::length(&traits_constructors)) {
+            // Transfer the trait, making it soulbound to the composable
+            let trait_constructor_ref = vector::borrow(&traits_constructors, i);
+            equip_soulbound_trait(signer_ref, composable_object, trait_constructor_ref, new_uri);
         };
         // Update the composable uri
         update_uri(composable_object, new_uri);
@@ -1570,7 +1616,7 @@ module composable_token::composable_token {
     }
 
     #[view]
-    /// Returns the uri of the token
+    /// Returns the children traits from the parent composable
     public fun traits_from_composable(composable_object: Object<Composable>): vector<Object<Trait>> acquires Composable {
         let object_address = object::object_address(&composable_object);
         borrow_global<Composable>(object_address).traits
