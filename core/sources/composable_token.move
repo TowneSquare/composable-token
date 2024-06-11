@@ -1916,12 +1916,10 @@ module composable_token::composable_token {
     /// Add a Composable wrapper to a digital asset
     /// Used to make plain digital assets compatible with the hirearchical structure
     public fun wrap_token_in_composable(
-        signer_ref: &signer,
         token: Object<token::Token>,
         object_signer_ref: &signer,
         mutator_ref: token::MutatorRef,
     ) {
-        assert!(object::is_owner<token::Token>(token, signer::address_of(signer_ref)), ENOT_OWNER);
         let token_addr = object::object_address(&token);
         // assert token does not have a DA, Trait or Composable resource
         assert!(
