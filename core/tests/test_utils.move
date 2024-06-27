@@ -13,15 +13,14 @@ module composable_token::test_utils {
     use aptos_framework::coin;
     use aptos_framework::managed_coin;
     use aptos_framework::object::{Self, Object};
-    use aptos_std::smart_table;
     use aptos_token_objects::collection;
     // use std::error;
     use std::option::{Self, Option};
     use std::signer;
-    use std::string::{Self, String};
+    use std::string;
     use std::type_info;
     use std::vector;
-    use composable_token::composable_token::{Self, Collection, Composable, Trait, Named, Indexed};
+    use composable_token::composable_token::{Self, Collection, Composable, Trait, Named};
 
     // collection 
     const COLLECTION_DESCRIPTION: vector<u8> =  b"Collection of Hack Singapore 2023 NFTs";
@@ -37,7 +36,7 @@ module composable_token::test_utils {
     const TRAIT_URI: vector<u8> = b"https://aptosfoundation.org/events/singapore-hackathon-2023/trait";
     const TRAIT_TYPE: vector<u8> = b"Trait type";
 
-    public fun prepare_for_test(std: signer) {
+    public fun prepare_for_test(_std: signer) {
         // auid and events
         // features::change_feature_flags(&std, vector[23], vector[]);
     }

@@ -4,9 +4,7 @@ version = "0.2.0"
 authors = ["lay (Aladeen)"]
 
 [addresses]
-composable_token = "0x5fe4421182921f3f4c847bb30127e25138ef463455c5981e7726fa08ce42855e"
-# mainnet
-# composable_token = "0x9de4ffd4d4e5d8463d0a8f7aea8d6f7a936006face568763cac335fe553fc8bb"
+composable_token = "_"
 
 [dev-addresses]
 
